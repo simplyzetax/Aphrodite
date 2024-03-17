@@ -4,6 +4,9 @@ import Hotfixes from "../utils/hotfixes";
 import { hotfixes } from "../database/models/hotfixes";
 import { Aphrodite } from "../utils/error";
 
+// This is the superior Cloudstorage approach in every way, it's faster and allows 
+// changes without watching files (Thats what these are for after all)
+
 app.get("/fortnite/api/cloudstorage/system", async (c) => {
 
     const hotfixList = [];
