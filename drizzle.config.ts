@@ -5,11 +5,11 @@ export default {
     out: './drizzle/migrations',
     driver: 'pg', // 'pg' | 'mysql2' | 'better-sqlite' | 'libsql' | 'turso'
     dbCredentials: {
-        host: "",
-        user: "",
+        host: "ep-icy-night-a25lbvtt.eu-central-1.aws.neon.tech",
+        user: "backend_owner",
         port: 5432,
-        password: "",
-        database: "",
-        //ssl: true
+        password: "mEsD5xZLdB4A",
+        database: "backend",
+        ssl: true
     },
 } satisfies Config;

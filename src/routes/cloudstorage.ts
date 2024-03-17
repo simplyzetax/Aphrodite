@@ -8,37 +8,34 @@ import { Aphrodite } from "../utils/error";
 // changes without watching files (Thats what these are for after all)
 
 app.get("/fortnite/api/cloudstorage/system", async (c) => {
-
-    const hotfixList = [];
-
     const files = await db.select().from(hotfixes);
-    for (const file of files) {
+    const hotfixList = files.map(file => {
         const name = file.filename.toLowerCase();
+        const date = new Date().toISOString();
 
         const sha256 = new Bun.SHA256();
-        sha256.update(new Date().toISOString());
+        sha256.update(date);
 
         const sha1 = new Bun.SHA1();
-        sha1.update(new Date().toISOString());
+        sha1.update(date);
 
         const sha256Hex = sha256.digest("hex");
         const sha1Hex = sha1.digest("hex");
 
-        hotfixList.push({
+        return {
             uniqueFilename: `${name}-${sha256Hex}`,
             filename: name,
             hash: sha1Hex,
             hash256: sha256Hex,
             length: Number((Math.random() * 1000).toFixed(0)),
             contentType: "application/octet-stream",
-            uploaded: new Date().toISOString(),
+            uploaded: date,
             storageType: "S3",
             storageIds: {},
-        });
-    }
+        };
+    });
 
     return c.json(hotfixList);
-
 });
 
 app.get("/fortnite/api/cloudstorage/system/:file", async (c) => {
@@ -47,8 +44,10 @@ app.get("/fortnite/api/cloudstorage/system/:file", async (c) => {
     const hotfixes = new Hotfixes(fileName);
     await hotfixes.fetchGlobalHotfixes();
     const parsedHotfixes = hotfixes.processHotfixes();
-    if (!parsedHotfixes) return c.sendError(Aphrodite.cloudstorage.fileNotFound)
+
+    if (!parsedHotfixes) {
+        return c.sendError(Aphrodite.cloudstorage.fileNotFound);
+    }
 
     return c.sendIni(parsedHotfixes);
-
 });
