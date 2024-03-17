@@ -10,6 +10,11 @@ It is currently not ready for production as most things aren't implemented yet. 
 
 Join our discord at https://discord.gg/7njfwrAqTd
 
+## Installation
+`git clone https://github.com/simplyzetax/Aphrodite`  
+`bun install`  
+`bun run src/index.ts`
+
 ## Features
 
 - [x] Super fast and lightweight
