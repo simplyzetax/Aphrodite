@@ -7,9 +7,11 @@ const configSchema = z.object({
 });
 
 class Config {
-    public static DATABASE_URL: string;
-    public static PORT: string;
-    public static ALLOWED_SEASONS: number[] = []
+    private static configMap: Map<string, string | number[]> = new Map();
+
+    public static get(key: string): string | number[] | undefined {
+        return this.configMap.get(key);
+    }
 
     public static load() {
         const env = process.env;
@@ -21,9 +23,9 @@ class Config {
 
         const config = unsafeConfig.data;
 
-        Config.DATABASE_URL = config.DATABASE_URL;
-        Config.PORT = config.PORT;
-        Config.ALLOWED_SEASONS = config.ALLOWED_SEASONS.split(',').map(Number);
+        this.configMap.set('DATABASE_URL', config.DATABASE_URL);
+        this.configMap.set('PORT', config.PORT);
+        this.configMap.set('ALLOWED_SEASONS', config.ALLOWED_SEASONS.split(',').map(Number));
 
         return config;
     }
