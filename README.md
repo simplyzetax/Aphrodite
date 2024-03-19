@@ -15,6 +15,14 @@ Join our discord at https://discord.gg/7njfwrAqTd
 `bun install`  
 `bun run src/index.ts`
 
+## Features Todo
+
+- [ ] Add heartbeat system
+- [ ] Add advanced matchmaker
+- [ ] Add XMPP (maybe)
+- [ ] Add easy way to only allow your self build client dll to connect to the backend and add gameserver side check endpoint
+- [ ] Add automatic shop changing every day
+
 ## Features
 
 - [x] Super fast and lightweight
