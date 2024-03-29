@@ -33,6 +33,7 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
             uploaded: date,
             storageType: "S3",
             storageIds: {},
+            doNotCache: true,
         };
     });
 
