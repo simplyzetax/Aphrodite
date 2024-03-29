@@ -2,6 +2,7 @@
   "name": "aphrodite",
   "module": "src/index.ts",
   "type": "module",
+  "version": "0.0.1",
   "devDependencies": {
     "@types/bun": "^1.0.8"
   },
