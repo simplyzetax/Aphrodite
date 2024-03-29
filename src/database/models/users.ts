@@ -1,11 +1,9 @@
-import { relations } from 'drizzle-orm';
-import { pgTable, serial, text, index, boolean, pgEnum, PgBoolean, uniqueIndex } from 'drizzle-orm/pg-core';
-import { profiles } from './profiles';
+import { text, integer, sqliteTable, uniqueIndex } from "drizzle-orm/sqlite-core";
 
-export const users = pgTable('users', {
+export const users = sqliteTable('users', {
     accountId: text('account_id').primaryKey().unique(),
     displayName: text('display_name').unique().notNull(),
-    banned: boolean('banned').default(false).notNull(),
+    banned: integer('banned', { mode: 'boolean' }).default(false).notNull(),
     discordId: text('discord_id').unique().notNull(),
     email: text('email').unique().notNull(),
 }, (users) => {
@@ -15,10 +13,6 @@ export const users = pgTable('users', {
         discordIdIndex: uniqueIndex('did_idx').on(users.discordId)
     }
 });
-
-export const UserProfilesRelation = relations(users, ({ many }) => ({
-    profiles: many(profiles),
-}));
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

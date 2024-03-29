@@ -1,29 +1,30 @@
-import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient, type Client } from '@libsql/client';
 import Logger from '../utils/logging';
 
 class DatabaseConnector {
-    private pg: postgres.Sql<{}>;
+    private client;
 
-    constructor(url: string) {
-        this.pg = postgres(url);
+    constructor(url: string, authToken: string) {
+        this.client = createClient({ url, authToken });
     }
 
     async connect(): Promise<ConnectedDatabase> {
-        const result = await this.pg`SELECT 1;`;
-        if (result.length === 0) {
+        try {
+            await this.client.execute('SELECT 1;');
+            Logger.startup('Connected to database');
+            return new ConnectedDatabase(this.client);
+        } catch (error) {
             throw new Error('Failed to connect to database');
         }
-        Logger.startup('Connected to database');
-        return new ConnectedDatabase(this.pg);
     }
 }
 
 class ConnectedDatabase {
-    public db: PostgresJsDatabase<Record<string, never>>;
+    public db;
 
-    constructor(pg: postgres.Sql<{}>) {
-        this.db = drizzle(pg);
+    constructor(client: Client) {
+        this.db = drizzle(client);
     }
 }
 

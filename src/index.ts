@@ -4,7 +4,7 @@ import { DatabaseConnector } from "./database/database";
 import responseEnhancementsMiddleware from "./middleware/rem";
 import { loadRoutes } from "./utils/routing";
 import Logger from "./utils/logging";
-import { Aphrodite, ApiError } from "./utils/error";
+import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
 import Uplink from "./utils/uplink";
 
@@ -20,15 +20,16 @@ app.use('*', responseEnhancementsMiddleware());
 
 export const config = Config.load();
 export const UPLINK_DATA = await Uplink.load();
+for (const [key, value] of Object.entries(UPLINK_DATA.features)) {
+    Logger.startup(`Uplink feature: ${key} is ${value ? 'enabled' : 'disabled'}`);
+}
 
-const dbInstance = new DatabaseConnector(config.DATABASE_URL);
+const dbInstance = new DatabaseConnector(config.DATABASE_URL, config.DATABASE_TOKEN);
 const connectedDb = await dbInstance.connect();
 export const db = connectedDb.db;
 
 await loadRoutes('../../src/routes/');
 
-app.notFound((c) => {
-    return c.sendError(Aphrodite.basic.notFound);
-});
+app.notFound((c) => c.sendError(Aphrodite.basic.notFound));
 
 Logger.startup(`Aphrodite listening on port 3000 😏`);

@@ -1,6 +1,5 @@
+import { config } from "..";
 import type { IVersion } from "../types/version";
-import Config from "./config";
-import { Aphrodite } from "./error";
 
 class UAParser {
 
@@ -62,7 +61,7 @@ class UAParser {
     }
 
     public static isAllowedSeason(season: number) {
-        if (Config.ALLOWED_SEASONS.includes(season)) return true;
+        if (config.ALLOWED_SEASONS.includes(season)) return true;
         return false;
     }
 

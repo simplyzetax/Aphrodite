@@ -1,16 +1,15 @@
-import { pgTable, serial, text, index, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
+import { users } from "./users";
 
-export const hotfixScope = pgEnum('scope', ['global', 'user']);
-
-export const hotfixes = pgTable('hotfixes', {
-    id: serial('id').primaryKey(),
+export const hotfixes = sqliteTable('hotfixes', {
+    id: integer('id').primaryKey(),
     filename: text('file').notNull(),
     section: text('section').notNull(),
     key: text('key').notNull(),
     value: text('value').notNull(),
-    enabled: boolean('enabled').notNull().default(true),
-    scope: hotfixScope('scope').notNull().default('user'),
-    accountId: text('account_id')
+    enabled: integer('enabled', { mode: "boolean" }).notNull().default(true),
+    scope: text('scope').notNull().default('user'),
+    accountId: text('account_id').references(() => users.accountId),
 }, (hotfixes) => {
     return {
         nameIndex: index('filename_idx').on(hotfixes.filename),

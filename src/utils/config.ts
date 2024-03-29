@@ -2,6 +2,7 @@ import { z } from "zod";
 import Hashing from "./hashing";
 
 const configSchema = z.object({
+    DATABASE_TOKEN: z.string(),
     DATABASE_URL: z.string(),
     PORT: z.string(),
     ALLOWED_SEASONS: z.string(),
@@ -22,6 +23,7 @@ class Config {
         const uplinkKey = Hashing.sha256(config.BOT_TOKEN);
 
         return new LoadedConfig(
+            config.DATABASE_TOKEN,
             config.DATABASE_URL,
             config.PORT,
             allowedSeasons,
@@ -33,6 +35,7 @@ class Config {
 
 class LoadedConfig {
     constructor(
+        public DATABASE_TOKEN: string,
         public DATABASE_URL: string,
         public PORT: string,
         public ALLOWED_SEASONS: number[],

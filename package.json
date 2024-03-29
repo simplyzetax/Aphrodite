@@ -10,7 +10,7 @@
     "start": "bun run src/index.ts",
     "lint": "eslint . --ext .ts --fix",
     "migration:generate": "drizzle-kit generate:pg",
-    "schema:push": "drizzle-kit push:pg --config=drizzle.config.ts"
+    "schema:push": "drizzle-kit push:sqlite --config=drizzle.config.ts"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

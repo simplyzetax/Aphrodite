@@ -1,5 +1,4 @@
-import app from "..";
-import Config from "../utils/config";
+import app, { config } from "..";
 import { Aphrodite, ApiError } from "../utils/error";
 import UAParser from "../utils/version";
 
@@ -55,7 +54,7 @@ app.get("/fortnite/api.*/versioncheck.*", (c) => {
         return c.json({
             type: "INVALID_CLIENT_VERSION",
             provided: version.season,
-            allowed: Config.ALLOWED_SEASONS
+            allowed: config.ALLOWED_SEASONS
         }, 418);
     }
 

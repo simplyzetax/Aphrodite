@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { config } from "..";
 
-const BASE_URL = 'https://uplink.nexusfn.net';
+const BASE_URL = 'https://uplink.zetax.workers.dev';
 
 const loadSchema = z.object({
     ownerId: z.string(),
@@ -17,7 +17,7 @@ const loadSchema = z.object({
 class Uplink {
 
     public static async load() {
-        const response = await fetch(`${BASE_URL}/api/config`, {
+        const response = await fetch(`${BASE_URL}/features`, {
             headers: {
                 'Authorization': `Bearer ${config.UPLINK_KEY}`
             }
@@ -29,9 +29,25 @@ class Uplink {
             throw new Error(unsafeConfig.error.message);
         }
 
-        return unsafeConfig.data;
+        return new EstablishedUplink(
+            unsafeConfig.data.ownerId,
+            unsafeConfig.data.features
+        );
     }
 
+}
+
+class EstablishedUplink {
+    constructor(
+        public ownerId: string,
+        public features: {
+            shop: boolean,
+            leaderboard: boolean,
+            database: boolean,
+            heartbeat: boolean,
+            ratelimiting: boolean,
+        }
+    ) { }
 }
 
 export default Uplink;
