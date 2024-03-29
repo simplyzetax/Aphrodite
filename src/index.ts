@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-import Database from "./database/database";
+import { DatabaseConnector } from "./database/database";
 import responseEnhancementsMiddleware from "./middleware/rem";
 import { loadRoutes } from "./utils/routing";
 import Logger from "./utils/logging";
@@ -21,9 +21,9 @@ app.use('*', responseEnhancementsMiddleware());
 export const config = Config.load();
 export const UPLINK_DATA = await Uplink.load();
 
-const dbInstance = new Database(config.DATABASE_URL);
-await dbInstance.connect();
-export const db = dbInstance.db;
+const dbInstance = new DatabaseConnector(config.DATABASE_URL);
+const connectedDb = await dbInstance.connect();
+export const db = connectedDb.db;
 
 await loadRoutes('../../src/routes/');
 

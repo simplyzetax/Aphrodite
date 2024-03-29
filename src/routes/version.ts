@@ -46,6 +46,7 @@ app.get("/fortnite/api/version", (c) => {
 
 app.get("/fortnite/api.*/versioncheck.*", (c) => {
     //Ima add the version check later
+    //TODO: Add a middleware that disallows all unknown user agents
 
     const version = UAParser.parse(c.req.header("user-agent"));
     if (!version) return c.sendError(Aphrodite.internal.invalidUserAgent)
