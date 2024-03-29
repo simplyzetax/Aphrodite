@@ -1,17 +1,15 @@
 import { z } from "zod";
+import Hashing from "./hashing";
 
 const configSchema = z.object({
     DATABASE_URL: z.string(),
     PORT: z.string(),
     ALLOWED_SEASONS: z.string(),
+    BOT_TOKEN: z.string(),
 });
 
 class Config {
-    public static DATABASE_URL: string;
-    public static PORT: string;
-    public static ALLOWED_SEASONS: number[] = []
-
-    public static load() {
+    public static load(): LoadedConfig {
         const env = process.env;
         const unsafeConfig = configSchema.safeParse(env);
 
@@ -20,13 +18,27 @@ class Config {
         }
 
         const config = unsafeConfig.data;
+        const allowedSeasons = config.ALLOWED_SEASONS.split(',').map(Number);
+        const uplinkKey = Hashing.sha256(config.BOT_TOKEN);
 
-        Config.DATABASE_URL = config.DATABASE_URL;
-        Config.PORT = config.PORT;
-        Config.ALLOWED_SEASONS = config.ALLOWED_SEASONS.split(',').map(Number);
-
-        return config;
+        return new LoadedConfig(
+            config.DATABASE_URL,
+            config.PORT,
+            allowedSeasons,
+            config.BOT_TOKEN,
+            uplinkKey
+        );
     }
 }
 
-export default Config;
+class LoadedConfig {
+    constructor(
+        public DATABASE_URL: string,
+        public PORT: string,
+        public ALLOWED_SEASONS: number[],
+        public BOT_TOKEN: string,
+        public UPLINK_KEY: string
+    ) { }
+}
+
+export { Config, LoadedConfig };
