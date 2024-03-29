@@ -4,7 +4,9 @@
   "type": "module",
   "version": "0.0.1",
   "devDependencies": {
-    "@types/bun": "^1.0.8"
+    "@types/bun": "^1.0.8",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/uuid": "^9.0.8"
   },
   "scripts": {
     "build": "bunx tsc",
@@ -24,8 +26,10 @@
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.30.2",
     "hono": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
+    "uuid": "^9.0.1",
     "zod": "^3.22.4"
   }
 }

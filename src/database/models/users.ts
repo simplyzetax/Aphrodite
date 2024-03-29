@@ -6,6 +6,7 @@ export const users = sqliteTable('users', {
     banned: integer('banned', { mode: 'boolean' }).default(false).notNull(),
     discordId: text('discord_id').unique().notNull(),
     email: text('email').unique().notNull(),
+    password: text('password').notNull(),
 }, (users) => {
     return {
         accountIdIndex: uniqueIndex('acid_idx').on(users.accountId),

@@ -14,6 +14,10 @@ class Encoding {
     public static decodeUtf8(input: string): string {
         return decodeURIComponent(escape(input));
     }
+
+    public static isValidBase64(input: string): boolean {
+        return /^[A-Za-z0-9+/]*={0,2}$/.test(input);
+    }
 }
 
 export default Encoding;
