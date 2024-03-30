@@ -13,7 +13,8 @@
     "start": "bun run src/index.ts",
     "lint": "eslint . --ext .ts --fix",
     "migration:generate": "drizzle-kit generate:pg",
-    "schema:push": "drizzle-kit push:sqlite --config=drizzle.config.ts"
+    "push": "drizzle-kit push:sqlite --config=drizzle.config.ts",
+    "studio": "bunx drizzle-kit studio"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -23,6 +24,7 @@
     "bun": "^1.0.31",
     "bun-types": "^1.0.31",
     "chalk": "^5.3.0",
+    "destr": "^2.0.3",
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.30.2",
     "hono": "^4.1.0",

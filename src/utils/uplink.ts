@@ -6,15 +6,43 @@ const BASE_URL = 'https://uplink.zetax.workers.dev';
 const loadSchema = z.object({
     ownerId: z.string(),
     features: z.object({
-        shop: z.boolean(),
-        leaderboard: z.boolean(),
-        database: z.boolean(),
+        autoshop: z.object({
+            enabled: z.boolean(),
+        }),
+        database: z.object({
+            enabled: z.boolean(),
+            uplink_database_url: z.string(),
+            uplink_database_token: z.string(),
+        }),
+        boost: z.object({
+            enabled: z.boolean(),
+            uplink_boost_url: z.string(),
+        }),
         heartbeat: z.boolean(),
-        ratelimiting: z.boolean(),
     }),
 });
 
 class Uplink {
+
+    public static async register() {
+        const response = await fetch(`${BASE_URL}/register`, {
+            method: 'POST',
+            body: JSON.stringify({
+                upkey: config.UPLINK_KEY
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error);
+        }
+
+
+
+    }
 
     public static async load() {
         const response = await fetch(`${BASE_URL}/features`, {
@@ -41,11 +69,19 @@ class EstablishedUplink {
     constructor(
         public ownerId: string,
         public features: {
-            shop: boolean,
-            leaderboard: boolean,
-            database: boolean,
+            autoshop: {
+                enabled: boolean,
+            },
+            database: {
+                enabled: boolean,
+                uplink_database_url: string | undefined,
+                uplink_database_token: string | undefined,
+            },
+            boost: {
+                enabled: boolean,
+                uplink_boost_url: string | undefined,
+            },
             heartbeat: boolean,
-            ratelimiting: boolean,
         }
     ) { }
 }

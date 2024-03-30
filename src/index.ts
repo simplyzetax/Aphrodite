@@ -8,6 +8,8 @@ import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
 import Uplink from "./utils/uplink";
 
+import "./matchmaker/server";
+
 const app = new Hono({
     strict: false,
 });
@@ -19,10 +21,7 @@ export default app;
 app.use('*', responseEnhancementsMiddleware());
 
 export const config = Config.load();
-export const UPLINK_DATA = await Uplink.load();
-for (const [key, value] of Object.entries(UPLINK_DATA.features)) {
-    Logger.startup(`Uplink feature: ${key} is ${value ? 'enabled' : 'disabled'}`);
-}
+//export const UPLINK_DATA = await Uplink.load();
 
 const dbInstance = new DatabaseConnector(config.DATABASE_URL, config.DATABASE_TOKEN);
 const connectedDb = await dbInstance.connect();
