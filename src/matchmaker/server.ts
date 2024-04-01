@@ -15,21 +15,21 @@ function authorizeRequest(req: Request): string | null {
         return null;
     }
 
-    const [, , encrypted] = auth.split(" ");
-    if (!encrypted) {
+    const [, , jwt] = auth.split(" ");
+    if (!jwt) {
         return null;
     }
 
-    return encrypted;
+    return jwt;
 }
 
-function upgradeWebSocket(req: Request, server: Server, encrypted: string) {
+function upgradeWebSocket(req: Request, server: Server, jwtToken: string) {
     const secWsKey = req.headers.get("Sec-WebSocket-Key");
 
     server.upgrade(req, {
         data: {
             id: secWsKey,
-            rawMMData: encrypted,
+            jwtToken: jwtToken,
         },
     });
 }
@@ -37,12 +37,12 @@ function upgradeWebSocket(req: Request, server: Server, encrypted: string) {
 const server = Bun.serve<WebSocketData>({
     port: 3001,
     fetch(req, server) {
-        const encrypted = authorizeRequest(req);
-        if (!encrypted) {
+        const jwtToken = authorizeRequest(req);
+        if (!jwtToken) {
             return new Response("Unauthorized request", { status: 401 });
         }
 
-        upgradeWebSocket(req, server, encrypted);
+        upgradeWebSocket(req, server, jwtToken);
     },
     websocket: {
         message(ws, message) { },

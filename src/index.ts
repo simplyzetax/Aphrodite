@@ -6,7 +6,6 @@ import { loadRoutes } from "./utils/routing";
 import Logger from "./utils/logging";
 import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
-import Uplink from "./utils/uplink";
 
 import "./matchmaker/server";
 

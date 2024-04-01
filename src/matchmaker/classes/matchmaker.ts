@@ -7,6 +7,9 @@ import type { ServerWebSocket } from "bun";
 import type { WebSocketData } from "../server";
 import { errorResponses } from "./error";
 
+import jwt from "jsonwebtoken";
+import { config } from "../..";
+
 class Matchmaker {
 
     public queues: Queue[] = [];
@@ -40,46 +43,55 @@ class Matchmaker {
         return new Client(mmData, socket);
     }
 
+    /**
+     * 
+     * @param data The raw jwt token
+     * @returns The valid MMData object or undefined if the jwt token is invalid
+     */
     private getMMData(data: string) {
-        const base64Decoded = Buffer.from(data, "base64");
         try {
-            const json = safeDestr(base64Decoded.toString());
-            const validated = mmDataSchema.safeParse(json);
-            if (validated.success) {
-                return validated.data;
+            const validJwt = jwt.verify(data, config.UPLINK_KEY);
+            if (!validJwt || typeof validJwt !== "string") {
+                return undefined;
             }
-            return undefined;
+
+            const validated = mmDataSchema.safeParse(validJwt);
+            if (!validated.success) {
+                return undefined;
+            }
+            return validated.data;
         } catch (error) {
             return undefined;
         }
     }
-    private validateMMData(mmData: MMData) {
+
+    private checkExpired(mmData: MMData) {
         const currentTime = new Date();
         if (new Date(currentTime).getTime() - new Date(mmData.expireAt).getTime() > 30000) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 
-    public initQueueOrFind(rawMMData: string, socket: ServerWebSocket<WebSocketData>): void {
+    public initQueueOrFind(jwtToken: string, socket: ServerWebSocket<WebSocketData>): void {
 
-        const mmData = this.getMMData(rawMMData);
-        if (!mmData) {
+        const validMMData = this.getMMData(jwtToken);
+        if (!validMMData) {
             return errorResponses.invalidMMData.sendError(socket);
         }
 
-        const valid = this.validateMMData(mmData);
-        if (!valid) {
+        const isExpired = this.checkExpired(validMMData);
+        if (isExpired) {
             return errorResponses.timestampExpired.sendError(socket);
         }
 
-        const queue = this.findQueue(mmData);
+        const queue = this.findQueue(validMMData);
 
-        const client = this.createClient(mmData, socket);
+        const client = this.createClient(validMMData, socket);
 
         if (!queue || queue.clients.length === 100) {
-            const newQueue = new Queue(mmData, this);
+            const newQueue = new Queue(validMMData, this);
             console.log("Creating new queue with ID", newQueue.matchId);
             newQueue.addClient(client);
             this.addQueue(newQueue);
