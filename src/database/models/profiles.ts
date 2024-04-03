@@ -8,7 +8,7 @@ export const profiles = pgTable('profiles', {
     revision: integer('revision').notNull(),
 }, (profiles) => {
     return {
-        accountIdProfileIndex: uniqueIndex('profile_accountId_idx').on(profiles.accountId),
+        accountIdProfileIndex: index('profile_accountId_idx').on(profiles.accountId),
         profileIdIndex: uniqueIndex('profile_id_idx').on(profiles.id),
     }
 });

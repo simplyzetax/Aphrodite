@@ -5,9 +5,9 @@ export const attributes = pgTable('attributes', {
     key: varchar('key', { length: 256 }).notNull(),
     valueJSON: jsonb('value_json').notNull(),
     type: varchar('type', { length: 256 }).notNull(),
-}, (Exchanges) => {
+}, (attributes) => {
     return {
-        idIndex: index('attr_id_idx').on(Exchanges.profileId),
+        idIndex: index('attr_id_idx').on(attributes.profileId),
     }
 });
 

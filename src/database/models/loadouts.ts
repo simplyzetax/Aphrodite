@@ -1,23 +1,24 @@
-import { jsonb, pgTable, uniqueIndex, varchar } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { jsonb, pgTable, text, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const loadouts = pgTable(
     "loadouts",
     {
-        id: varchar("id", { length: 256 }).primaryKey(),
-        profileId: varchar("profile_id", { length: 256 }).notNull(),
-        templateId: varchar("template_id", { length: 256 }).notNull(),
-        lockerName: varchar("locker_name", { length: 256 }).notNull(),
-        bannerId: varchar("banner_id", { length: 256 }).notNull(),
-        bannerColorId: varchar("banner_color_id", { length: 256 }).notNull(),
-        characterId: varchar("character_id", { length: 256 }).notNull(),
-        backpackId: varchar("backpack_id", { length: 256 }).notNull(),
-        gliderId: varchar("glider_id", { length: 256 }).notNull(),
+        id: uuid("id").primaryKey().default(sql`uuid_generate_v4()`),
+        profileId: text("profile_id").notNull(),
+        templateId: text("template_id").notNull(),
+        lockerName: text("locker_name").notNull(),
+        bannerId: text("banner_id").notNull(),
+        bannerColorId: text("banner_color_id").notNull(),
+        characterId: text("character_id").notNull(),
+        backpackId: text("backpack_id").notNull(),
+        gliderId: text("glider_id").notNull(),
         danceId: jsonb("dance_id").notNull(),
-        pickaxeId: varchar("pickaxe_id", { length: 256 }).notNull(),
+        pickaxeId: text("pickaxe_id").notNull(),
         itemWrapId: jsonb("item_wrap_id").notNull(),
-        contrailId: varchar("contrail_id", { length: 256 }).notNull(),
-        loadingScreenId: varchar("loading_screen_id", { length: 256 }).notNull(),
-        musicPackId: varchar("music_pack_id", { length: 256 }).notNull(),
+        contrailId: text("contrail_id").notNull(),
+        loadingScreenId: text("loading_screen_id").notNull(),
+        musicPackId: text("music_pack_id").notNull(),
     },
     (Exchanges) => {
         return {

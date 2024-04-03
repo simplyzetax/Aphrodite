@@ -1,31 +1,47 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../..";
 import { profiles } from "../../database/models/profiles";
 import { loadouts } from "../../database/models/loadouts";
 import { attributes } from "../../database/models/attributes";
 import ItemBuilder from "./items";
 import { buildLoadouts } from "./loadouts";
-import type { AthenaSchemaModelDB } from "../../types/athena";
+import type { ProfileSchemaDB } from "../../types/athena";
 
-class Athena {
-    public profile: AthenaSchemaModelDB;
+class Profile {
+    public profile: ProfileSchemaDB;
 
-    constructor(profile: AthenaSchemaModelDB) {
+    constructor(profile: ProfileSchemaDB) {
         this.profile = profile;
     }
 }
 
-export namespace AthenaHelper {
-    export async function getProfile(accountId: string): Promise<Athena | undefined> {
+export class ProfileHelper {
+
+    type: string;
+    season: number;
+
+    constructor(profileType: string, season: number) {
+        this.type = profileType;
+        this.season = season;
+    }
+
+    public async getProfile(accountId: string): Promise<Profile | undefined> {
         try {
             // Fetch profile data from database
-            const [profileData] = await db.select().from(profiles).where(eq(profiles.accountId, accountId));
+            const [profileData] = await db.select().from(profiles).where(and(eq(profiles.type, this.type), eq(profiles.accountId, accountId)));
 
-            // Fetch associated lockers and attributes data
-            const [lockersData, attributesData] = await Promise.all([
-                db.select().from(loadouts).where(eq(loadouts.profileId, profileData.id)),
-                db.select().from(attributes).where(eq(attributes.profileId, profileData.id))
-            ]);
+            // Initialize loadoutsData and bLoadouts as empty, they will be populated if profile type is 'athena'
+            let loadoutsData = [];
+            let bLoadouts = {};
+
+            // Fetch associated attributes data
+            const attributesData = await db.select().from(attributes).where(eq(attributes.profileId, profileData.id));
+
+            // If profile type is 'athena', fetch and build loadouts
+            if (profileData.type === 'athena') {
+                loadoutsData = await db.select().from(loadouts).where(eq(loadouts.profileId, profileData.id));
+                bLoadouts = buildLoadouts(loadoutsData);
+            }
 
             // Convert attributes data to a key-value pair object
             const attributesObject: Record<string, any> = {};
@@ -33,13 +49,12 @@ export namespace AthenaHelper {
                 attributesObject[attribute.key] = attribute.valueJSON;
             }
 
-            // Build items and loadouts
+            // Build items
             const itemBuilder = new ItemBuilder(profileData.id);
             const bItems = await itemBuilder.buildItems();
-            const bLoadouts = buildLoadouts(lockersData);
 
             // Construct profile object
-            const profileObject: AthenaSchemaModelDB = {
+            const profileObject: ProfileSchemaDB = {
                 accountId: profileData.accountId,
                 profileUniqueId: profileData.id,
                 stats: {
@@ -50,17 +65,17 @@ export namespace AthenaHelper {
                 updated: new Date().toISOString(),
                 rvn: profileData.revision,
                 wipeNumber: 0,
-                profileId: profileData.type, // "athena" represents the profile type
-                version: "11.31",
+                profileId: profileData.type,
+                version: `${this.season}`,
                 items: {
                     ...bItems,
                     ...bLoadouts,
                 } as any // Temporary type casting, to be fixed later
             }
 
-            // Create and return a new Athena instance
-            const athenaInstance = new Athena(profileObject);
-            return athenaInstance;
+            // Create and return a new Profile instance
+            const profileInstance = new Profile(profileObject);
+            return profileInstance;
         } catch (error: unknown) {
             console.error(error); // Log the error for debugging purposes
             return undefined;

@@ -4,7 +4,8 @@ import { profiles } from "../../database/models/profiles";
 import { getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import ItemBuilder from "../../utils/builders/items";
-import { AthenaHelper } from "../../utils/builders/athena";
+import { ProfileHelper } from "../../utils/builders/athena";
+import UAParser from "../../utils/version";
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (c) => {
 
@@ -19,15 +20,21 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
 
     const [profile] = await db.select().from(profiles).where(and(eq(profiles.type, requestedProfileId), eq(profiles.accountId, user.accountId)));
-    if (!profile) return c.sendError(Aphrodite.mcp.profileNotFound.variable([user.accountId]));
+    if (!profile) return c.sendError(Aphrodite.mcp.templateNotFound.variable([user.accountId]));
 
     const ib = new ItemBuilder(String(profile.id));
     const items = await ib.buildItems();
     if (!items) return c.sendError(Aphrodite.mcp.emptyItems);
 
     //TODO make it not only query athena, but cc etc too
-    const fullProfile = await AthenaHelper.getProfile(user.accountId);
-    if (!fullProfile) return c.sendError(Aphrodite.mcp.profileNotFound);
+
+    const ua = UAParser.parse(c.req.header("User-Agent"));
+    if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
+
+    const ph = new ProfileHelper(profile.type, ua.season);
+
+    const fullProfile = await ph.getProfile(user.accountId);
+    if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
     return c.json({
         profileRevision: profile.revision || 0,

@@ -1,6 +1,6 @@
 import type { TempLoadouts } from "./loadouts";
 
-export interface LoadoutSchemaModel {
+export interface LoadoutSchema {
     templateId: string;
     attributes: {
         locker_slots_data: {
@@ -53,7 +53,7 @@ export interface LoadoutSchemaModel {
     quantity: number;
 }
 
-export interface AthenaItemModel {
+export interface ItemSchema {
     attributes: {
         favorite: boolean;
         item_seen: boolean;
@@ -67,7 +67,7 @@ export interface AthenaItemModel {
     templateId: string;
 }
 
-export interface AthenaStatsSchemaModel {
+export interface ProfileStats {
     attributes: {
         [key: string]: any;
         /* season_match_boost: number;
@@ -110,7 +110,7 @@ export interface AthenaStatsSchemaModel {
     };
 }
 
-export interface AthenaAttributesSchemaModel {
+export interface ProfileAttributes {
     [key: string]: any;
     season_match_boost: number;
     loadouts: string[];
@@ -151,7 +151,7 @@ export interface AthenaAttributesSchemaModel {
     favorite_loading_screen: string;
 }
 
-export interface AthenaSchemaModelDB {
+export interface ProfileSchemaDB {
     created: string;
     updated: string;
     rvn: number;
@@ -160,12 +160,12 @@ export interface AthenaSchemaModelDB {
     profileUniqueId: string;
     profileId: string;
     version: string;
-    items: Record<string, AthenaItemModel | TempLoadouts>;
-    stats: AthenaStatsSchemaModel;
+    items: Record<string, ItemSchema | TempLoadouts>;
+    stats: ProfileStats;
     commandRevision: number;
 }
 
-export interface AthenaSchemaModelJSON {
+export interface ProfileSchemaJSON {
     created: string;
     updated: string;
     rvn: number;
@@ -173,7 +173,7 @@ export interface AthenaSchemaModelJSON {
     accountId: string;
     profileId: string;
     version: string;
-    items: Record<string, AthenaItemModel | LoadoutSchemaModel>;
-    stats: AthenaStatsSchemaModel;
+    items: Record<string, ItemSchema | LoadoutSchema>;
+    stats: ProfileStats;
     commandRevision: number;
 }
