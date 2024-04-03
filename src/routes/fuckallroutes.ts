@@ -1,5 +1,7 @@
 import app from "..";
 
+// Love to lawin
+
 app.post("/fortnite/api/game/v2/tryPlayOnPlatform/account/:accountId", (c) => {
     c.res.headers.append("Content-Type", "text/plain")
     return c.body("true");
