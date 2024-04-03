@@ -70,7 +70,7 @@ export interface AthenaItemModel {
 export interface AthenaStatsSchemaModel {
     attributes: {
         [key: string]: any;
-        season_match_boost: number;
+        /* season_match_boost: number;
         loadouts: string[];
         rested_xp_overflow: number;
         mfa_reward_claimed: boolean;
@@ -106,7 +106,7 @@ export interface AthenaStatsSchemaModel {
         favorite_dance: string[];
         favorite_itemwraps: string[];
         favorite_character: string;
-        favorite_loading_screen: string;
+        favorite_loading_screen: string; */
     };
 }
 

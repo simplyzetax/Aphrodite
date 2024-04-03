@@ -25,6 +25,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const items = await ib.buildItems();
     if (!items) return c.sendError(Aphrodite.mcp.emptyItems);
 
+    //TODO make it not only query athena, but cc etc too
     const fullProfile = await AthenaHelper.getProfile(user.accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.profileNotFound);
 
