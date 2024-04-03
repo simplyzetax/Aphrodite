@@ -16,7 +16,7 @@ export async function loadRoutes(dir: string, isInitialCall = true): Promise<voi
     const importPromises = [];
 
     for (const entry of entries) {
-        if (entry.name === "proxy.ts") continue;
+        if (entry.name === "catchall.ts") continue;
         count++;
         const res = path.resolve(import.meta.dir + "/" + dir, entry.name);
         if (entry.isDirectory()) {
@@ -30,6 +30,7 @@ export async function loadRoutes(dir: string, isInitialCall = true): Promise<voi
 
     if (isInitialCall) {
         Logger.startup(`Loaded ${count} route${count === 1 ? '' : 's'}`);
-        //await import("../routes/proxy.ts");
+        await import("../routes/mcp/catchall");
+        Logger.startup('Loaded catchall route')
     }
 }

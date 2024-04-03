@@ -1,7 +1,7 @@
 import app from "..";
 
 app.get("/lightswitch/api/service/Fortnite/status", async (c) => {
-    c.json({
+    return c.json({
         serviceInstanceId: "fortnite",
         status: "UP",
         message: "Fortnite is online",
@@ -20,7 +20,7 @@ app.get("/lightswitch/api/service/Fortnite/status", async (c) => {
 });
 
 app.get("/lightswitch/api/service/bulk/status", async (c) => {
-    c.json([{
+    return c.json([{
         serviceInstanceId: "fortnite",
         status: "UP",
         message: "fortnite is up.",

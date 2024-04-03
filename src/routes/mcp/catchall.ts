@@ -1,13 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import app, { db } from "../..";
-import { profiles } from "../../database/models/profiles";
 import { getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
-import ItemBuilder from "../../utils/builders/items";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
 
-app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (c) => {
+app.post('/fortnite/api/game/v2/profile/:accountId/client/:action', async (c) => {
 
     const unsafeAccountId = c.req.param("accountId");
 

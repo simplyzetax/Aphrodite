@@ -60,8 +60,8 @@ class UAParser {
         }
     }
 
-    public static isAllowedSeason(season: number) {
-        if (config.ALLOWED_SEASONS.includes(season)) return true;
+    public static isAllowedBuild(build: number) {
+        if (config.ALLOWED_SEASONS.includes(build)) return true;
         return false;
     }
 

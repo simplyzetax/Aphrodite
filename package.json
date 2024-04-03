@@ -4,6 +4,7 @@
   "type": "module",
   "version": "0.0.1",
   "devDependencies": {
+    "@biomejs/biome": "1.6.4",
     "@types/bun": "^1.0.8",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/pg": "^8.11.4",

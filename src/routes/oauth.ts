@@ -10,6 +10,7 @@ import { tokens } from "../database/models/tokens";
 import { and, eq } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import TokenManager from "../utils/tokens";
+import { getAuthUser } from "../utils/auth";
 
 //I'll make it secure later
 app.post("/account/api/oauth/token", async (c) => {
@@ -24,13 +25,6 @@ app.post("/account/api/oauth/token", async (c) => {
     const [clientId] = Encoding.decodeBase64(authParts[1]).split(":");
     const [, clientSecret] = Encoding.decodeBase64(authParts[1]).split(":");
 
-    let requestBody: unknown;
-    try {
-        requestBody = await c.req.parseBody() as unknown;
-    } catch {
-        return c.sendError(Aphrodite.basic.badRequest.withMessage("Failed to parse request body"));
-    }
-
     const schema = z.object({
         grant_type: z.string(),
         username: z.string().optional(),
@@ -41,10 +35,11 @@ app.post("/account/api/oauth/token", async (c) => {
 
     let body: TOAuthBody;
     try {
-        const jsoBody = await c.req.json();
-        body = schema.parse(jsoBody);
-    } catch (err: any) {
-        return c.sendError(Aphrodite.basic.badRequest.withMessage(JSON.stringify(err.errors)));
+        const formDataBody = await c.req.formData();
+        const object = Object.fromEntries(formDataBody);
+        body = schema.parse(object);
+    } catch (e) {
+        return c.json(e);
     }
 
     if (body.grant_type === "client_credentials") {
@@ -143,5 +138,27 @@ app.post("/account/api/oauth/token", async (c) => {
         in_app_id: user.accountId,
         device_id: Math.floor(Math.random() * 1000000000),
     });
+
+});
+
+app.delete("/account/api/oauth/sessions/kill", async (c) => {
+
+    //TODO: This route is not implemented because old tokens already get deleted in the new token creation route
+    return c.sendStatus(204);
+
+});
+
+app.delete("/account/api/oauth/sessions/kill/:token", async (c) => {
+
+    const token = c.req.param("token");
+    if (!token) return c.sendError(Aphrodite.basic.badRequest.withMessage("Missing token"));
+
+    const user = await getAuthUser(c);
+    if (!user) return c.sendError(Aphrodite.authentication.invalidToken);
+
+    const tm = new TokenManager(user);
+    await tm.resetAllTokensForUser();
+
+    return c.sendStatus(204);
 
 });

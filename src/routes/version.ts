@@ -43,16 +43,16 @@ app.get("/fortnite/api/version", (c) => {
     });
 });
 
-app.get("/fortnite/api.*/versioncheck.*", (c) => {
+app.get("/fortnite/api/v2/versioncheck/:platform", (c) => {
     //Ima add the version check later
     //TODO: Add a middleware that disallows all unknown user agents
 
     const version = UAParser.parse(c.req.header("user-agent"));
     if (!version) return c.sendError(Aphrodite.internal.invalidUserAgent)
 
-    if (!UAParser.isAllowedSeason(version.season)) {
+    if (!UAParser.isAllowedBuild(version.build)) {
         return c.json({
-            type: "INVALID_CLIENT_VERSION",
+            type: "SOFT_UPDATE",
             provided: version.season,
             allowed: config.ALLOWED_SEASONS
         }, 418);
