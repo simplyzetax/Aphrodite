@@ -19,8 +19,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const requestedProfileId = c.req.query("profileId");
     if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
 
-    //TODO make it not only query athena, but cc etc too
-
     const ua = UAParser.parse(c.req.header("User-Agent"));
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
