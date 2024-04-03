@@ -245,6 +245,9 @@ export const Aphrodite = {
         get profileNotFound() {
             return new ApiError('errors.com.epicgames.mcp.profileNotFound', "Sorry, we couldn't find a profile for {accountId}", 18007, 404);
         },
+        get emptyItems() {
+            return new ApiError('errors.com.epicgames.mcp.emptyItems', 'No items found', 12700, 404);
+        },
         get notEnoughMtx() {
             return new ApiError('errors.com.epicgames.mcp.notEnoughMtx', 'Purchase: {0}: Required {1} MTX but account balance is only {2}.', 12720, 400);
         },

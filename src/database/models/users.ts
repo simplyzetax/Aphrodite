@@ -1,9 +1,9 @@
-import { text, integer, sqliteTable, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { boolean, integer, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
     accountId: text('account_id').primaryKey().unique(),
     displayName: text('display_name').unique().notNull(),
-    banned: integer('banned', { mode: 'boolean' }).default(false).notNull(),
+    banned: boolean('banned').default(false).notNull(),
     discordId: text('discord_id').unique().notNull(),
     email: text('email').unique().notNull(),
     password: text('password').notNull(),

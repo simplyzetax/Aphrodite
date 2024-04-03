@@ -1,13 +1,13 @@
-import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
+import { boolean, index, integer, pgTable, text } from "drizzle-orm/pg-core";
 
-export const hotfixes = sqliteTable('hotfixes', {
+export const hotfixes = pgTable('hotfixes', {
     id: integer('id').primaryKey(),
     filename: text('file').notNull(),
     section: text('section').notNull(),
     key: text('key').notNull(),
     value: text('value').notNull(),
-    enabled: integer('enabled', { mode: "boolean" }).notNull().default(true),
+    enabled: boolean('enabled').notNull().default(true),
     scope: text('scope').notNull().default('user'),
     accountId: text('account_id').references(() => users.accountId),
 }, (hotfixes) => {

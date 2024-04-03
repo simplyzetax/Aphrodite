@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 
-import { DatabaseConnector } from "./database/database";
 import responseEnhancementsMiddleware from "./middleware/rem";
 import { loadRoutes } from "./utils/routing";
 import Logger from "./utils/logging";
@@ -8,6 +7,7 @@ import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
 
 import "./matchmaker/server";
+import DB from "./database/database";
 
 const app = new Hono({
     strict: false,
@@ -22,9 +22,9 @@ app.use('*', responseEnhancementsMiddleware());
 export const config = Config.load();
 //export const UPLINK_DATA = await Uplink.load();
 
-const dbInstance = new DatabaseConnector(config.DATABASE_URL, config.DATABASE_TOKEN);
-const connectedDb = await dbInstance.connect();
-export const db = connectedDb.db;
+const dbInstance = new DB(config.DATABASE_URL);
+await dbInstance.connect();
+export const db = dbInstance.client;
 
 await loadRoutes('../../src/routes/');
 

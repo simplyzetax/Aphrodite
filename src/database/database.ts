@@ -1,31 +1,76 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient, type Client } from '@libsql/client';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { config } from '..';
+import { Client } from 'pg';
 import Logger from '../utils/logging';
 
-class DatabaseConnector {
-    private client;
+class DB {
+    private static instanceCount = 0;
 
-    constructor(url: string, authToken: string) {
-        this.client = createClient({ url, authToken });
+    /**
+     * The database connection
+     */
+    public connection: Client;
+
+    /**
+     * The database client to run queries with
+     */
+    public client: NodePgDatabase;
+
+    /**
+     * The connection UID. Used for logging purposes
+     */
+    id: number;
+
+    /**
+     * Creates a new database instance
+     */
+    constructor(database_url: string) {
+
+        this.connection = new Client({
+            connectionString: database_url,
+        });
+
+        this.client = drizzle(this.connection);
+        this.id = DB.instanceCount++;
     }
 
-    async connect(): Promise<ConnectedDatabase> {
+    /**
+     * Connects to the database and validates the connection
+     * @returns {Promise<void>}
+     */
+    async connect(): Promise<void> {
         try {
-            await this.client.execute('SELECT 1;');
-            Logger.startup('Connected to database');
-            return new ConnectedDatabase(this.client);
-        } catch (error) {
-            throw new Error('Failed to connect to database');
+            await this.connection.connect();
+
+            const validate = await this.connection.query('SELECT 1');
+            if (JSON.stringify(validate).includes('1')) {
+                Logger.startup(`Database connection with id ${this.id} established 🙌`);
+            } else {
+                Logger.error(`Database connection test for id ${this.id} failed 😢`);
+                process.exit(1);
+            }
+        } catch (err: any) {
+            Logger.error(err.message);
+            Logger.error(`Database connection test for id ${this.id} failed 😢`);
+            process.exit(1);
         }
     }
-}
 
-class ConnectedDatabase {
-    public db;
+    /**
+     * Disconnects from the database
+     * @returns {Promise<void>}
+     */
+    async disconnect(): Promise<void> {
+        await this.connection.end();
+    }
 
-    constructor(client: Client) {
-        this.db = drizzle(client);
+    /**
+     * Runs migrations
+     * @returns {Promise<void>}
+     */
+    async migrate(): Promise<void> {
+        //await migrate(this.client, { migrationsFolder: path.join(import.meta.dir, '../../drizzle/migrations/') });
     }
 }
 
-export { DatabaseConnector, ConnectedDatabase };
+export default DB;

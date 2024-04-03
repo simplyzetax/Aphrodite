@@ -1,15 +1,17 @@
-import { text, integer, sqliteTable, uniqueIndex } from "drizzle-orm/sqlite-core";
-import { users } from './users';
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, integer, uniqueIndex, boolean, jsonb, index, uuid } from "drizzle-orm/pg-core";
 
-export const profiles = sqliteTable('profiles', {
-    id: integer('id').primaryKey(),
-    type: text('type').notNull(),
-    rvn: integer('revision').notNull().default(0),
-    accountId: text('account_id').references(() => users.accountId).notNull(),
+export const profiles = pgTable('profiles', {
+    id: uuid('id').primaryKey().default(sql`uuid_generate_v4()`),
+    accountId: varchar('account_id', { length: 256 }).notNull(),
+    type: varchar('type', { length: 256 }).notNull(),
+    revision: integer('revision').notNull(),
 }, (profiles) => {
     return {
-        idIndex: uniqueIndex('pid_idx').on(profiles.id),
+        accountIdProfileIndex: uniqueIndex('profile_accountId_idx').on(profiles.accountId),
+        profileIdIndex: uniqueIndex('profile_id_idx').on(profiles.id),
     }
 });
+
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;

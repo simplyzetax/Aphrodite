@@ -6,6 +6,7 @@
   "devDependencies": {
     "@types/bun": "^1.0.8",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/pg": "^8.11.4",
     "@types/qs": "^6.9.14",
     "@types/uuid": "^9.0.8"
   },
@@ -14,7 +15,7 @@
     "start": "bun run src/index.ts",
     "lint": "eslint . --ext .ts --fix",
     "migration:generate": "drizzle-kit generate:pg",
-    "push": "drizzle-kit push:sqlite --config=drizzle.config.ts",
+    "push": "drizzle-kit push:pg --config=drizzle.config.ts",
     "studio": "bunx drizzle-kit studio"
   },
   "peerDependencies": {
@@ -30,7 +31,7 @@
     "drizzle-orm": "^0.30.2",
     "hono": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3",
+    "pg": "^8.11.5",
     "postgres": "^3.4.3",
     "qs": "^6.12.0",
     "uuid": "^9.0.1",
