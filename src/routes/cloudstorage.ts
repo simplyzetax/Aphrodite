@@ -3,12 +3,23 @@ import app, { db } from "..";
 import Hotfixes from "../utils/hotfixes";
 import { hotfixes } from "../database/models/hotfixes";
 import { Aphrodite } from "../utils/error";
-import Timing from "../utils/timing";
+import { getACIDFromJWT, verifyClientToken } from "../utils/auth";
 
 // This is the superior Cloudstorage approach in every way, it's faster and allows 
 // changes without watching files (Thats what these are for after all)
 
 app.get("/fortnite/api/cloudstorage/system", async (c) => {
+
+    const Authorization = c.req.header("Authorization");
+    if (!Authorization) {
+        return c.sendError(Aphrodite.authentication.invalidHeader);
+    }
+
+    const validClient = verifyClientToken(Authorization);
+    if (!validClient && !getACIDFromJWT(c)) {
+        return c.sendError(Aphrodite.authentication.invalidToken);
+    }
+
     const files = await db.select().from(hotfixes);
     const hotfixList = files.map(file => {
         const name = file.filename.toLowerCase();
@@ -41,6 +52,17 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
 });
 
 app.get("/fortnite/api/cloudstorage/system/:file", async (c) => {
+
+    const Authorization = c.req.header("Authorization");
+    if (!Authorization) {
+        return c.sendError(Aphrodite.authentication.invalidHeader);
+    }
+
+    const validClient = verifyClientToken(Authorization);
+    if (!validClient && !getACIDFromJWT(c)) {
+        return c.sendError(Aphrodite.authentication.invalidToken);
+    }
+
     const fileName = c.req.param("file");
 
     const hotfixes = new Hotfixes(fileName);

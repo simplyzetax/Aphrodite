@@ -55,7 +55,7 @@ app.get("/fortnite/api/matchmaking/session/:sessionId", async (c) => {
     });
 });
 
-app.post("/fortnite/api/matchmaking/session/*/join", (c) => c.sendStatus(204));
+app.post("/fortnite/api/matchmaking/session/:sessionId/join", (c) => c.sendStatus(204));
 
 app.post("/fortnite/api/matchmaking/session/matchMakingRequest", (c) => {
     return c.json([]);

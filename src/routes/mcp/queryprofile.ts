@@ -1,5 +1,5 @@
 import app from "../..";
-import { getACIDFromJWt, getAuthUser } from "../../utils/auth";
+import { getACIDFromJWT, getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
@@ -9,7 +9,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
 
     const unsafeAccountId = c.req.param("accountId");
 
-    const accountId = getACIDFromJWt(c);
+    const accountId = getACIDFromJWT(c);
 
     if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
 

@@ -5,6 +5,22 @@ import type { IHotfixStats } from "../types/hotfixes";
 import Logger from "./logging";
 import type { BunFile } from "bun";
 
+const preparedGlobalHotfixesQuery = db.select().from(hotfixes)
+    .where(and(eq(hotfixes.filename, sql.placeholder('file')), eq(hotfixes.enabled, true), eq(hotfixes.scope, 'global'))).prepare('global_hotfixes');
+
+const preparedUserHotfixesQuery = db.select().from(hotfixes).where(
+    and(
+        eq(hotfixes.filename, sql.placeholder('file')),
+        and(
+            eq(hotfixes.enabled, true),
+            and(
+                eq(hotfixes.scope, 'user'),
+                eq(hotfixes.accountId, sql.placeholder('accountId'))
+            )
+        )
+    )
+).prepare('user_hotfixes');
+
 class Hotfixes {
     private filename: string;
     private hotfixes: Hotfix[] = [];
@@ -15,8 +31,7 @@ class Hotfixes {
     }
 
     public async fetchGlobalHotfixes() {
-        this.hotfixes = await db.select().from(hotfixes)
-            .where(and(eq(hotfixes.filename, this.filename), eq(hotfixes.enabled, true), eq(hotfixes.scope, 'global')));
+        this.hotfixes = await preparedGlobalHotfixesQuery.execute({ file: this.filename });
 
         if (!this.hotfixes.length) {
             return;
@@ -24,34 +39,9 @@ class Hotfixes {
     }
 
     public async fetchUserHotifxes(accountId: string) {
-        const statement = sql`
-            SELECT * FROM "Hotfixes"
-            WHERE "file" = ${this.filename}
-            AND "enabled" = true
-            AND (
-                scope = 'global' 
-            OR (
-                scope = 'user' 
-            AND account_id = ${accountId}
-            )
-        );`
 
-        const rows = await db.execute(statement);
-
-        if (!rows.rowCount) {
-            throw new Error(`Hotfixes not found for file: ${this.filename} and account id: ${accountId}`);
-        }
-
-        this.hotfixes = rows.rows.map((row: any) => ({
-            id: String(row.id),
-            enabled: Boolean(row.enabled),
-            filename: String(row.file),
-            section: String(row.section),
-            key: String(row.key),
-            value: String(row.value),
-            scope: row.scope as "global" | "user",
-            accountId: row.account_id ? String(row.account_id) : null,
-        }));
+        const userHotfixes = await preparedUserHotfixesQuery.execute({ file: this.filename, accountId });
+        this.hotfixes = this.hotfixes.concat(userHotfixes);
     }
 
     public processHotfixes() {

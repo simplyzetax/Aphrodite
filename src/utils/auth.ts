@@ -11,6 +11,26 @@ function isJwtPayload(object: any): object is JwtPayload {
     return 'iat' in object && 'exp' in object && 'sub' in object;
 }
 
+/**
+ * 
+ * @param authorization The Authorization header
+ * @returns Whether the token is valid or not
+ */
+export function verifyClientToken(authorization: string): boolean {
+    try {
+        const token = authorization.replace(/Bearer eg1~/i, "");
+        jwt.verify(token, config.UPLINK_KEY);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
+ * 
+ * @param c The request context
+ * @returns The user object
+ */
 export async function getAuthUser(c: Context): Promise<User | undefined> {
 
     const auth = c.req.header("Authorization");
@@ -38,21 +58,29 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
     return validUser;
 }
 
-export function getACIDFromJWt(c: Context): string | undefined {
+/**
+ * 
+ * @param c The request context
+ * @returns The account ID
+ */
+export function getACIDFromJWT(c: Context): string | undefined {
+    try {
+        const auth = c.req.header("Authorization");
+        if (!auth) {
+            return undefined;
+        }
 
-    const auth = c.req.header("Authorization");
-    if (!auth) {
+        let token = auth.replace(/Bearer eg1~/i, "");
+
+        const decoded = jwt.verify(token, config.UPLINK_KEY);
+        if (typeof decoded === 'string' || !isJwtPayload(decoded)) {
+            throw new Error('Invalid token');
+        }
+
+        const decodedToken: JwtPayload = decoded;
+
+        return decodedToken.sub;
+    } catch (e) {
         return undefined;
     }
-
-    let token = auth.replace(/Bearer eg1~/i, "");
-
-    const decoded = jwt.verify(token, config.UPLINK_KEY);
-    if (typeof decoded === 'string' || !isJwtPayload(decoded)) {
-        throw new Error('Invalid token');
-    }
-
-    const decodedToken: JwtPayload = decoded;
-
-    return decodedToken.sub;
 }
