@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import path from "node:path";
 
 import responseEnhancementsMiddleware from "./middleware/rem";
 import { loadRoutes } from "./utils/routing";
@@ -7,9 +6,7 @@ import Logger from "./utils/logging";
 import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
 
-import "./matchmaker/server";
 import DB from "./database/database";
-import Hotfixes from "./utils/hotfixes";
 
 const app = new Hono({
     strict: false,

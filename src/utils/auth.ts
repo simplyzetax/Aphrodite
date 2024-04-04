@@ -81,9 +81,23 @@ export function getACIDFromJWT(c: Context): string | undefined {
         }
 
         const decodedToken: JwtPayload = decoded;
-
         return decodedToken.sub;
     } catch (e) {
         return undefined;
     }
+}
+
+export function getTokenFromContext(c: Context): string | undefined {
+    const auth = c.req.header("Authorization");
+    if (!auth) {
+        return undefined;
+    }
+
+    return auth.replace(/Bearer eg1~/i, "");
+}
+
+export function addHoursJWT(arg0: Date, hours_expire: any) {
+    const date = new Date(arg0);
+    date.setHours(date.getHours() + hours_expire);
+    return date;
 }

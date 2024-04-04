@@ -10,7 +10,7 @@ import { tokens } from "../database/models/tokens";
 import { and, eq } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import TokenManager from "../utils/tokens";
-import { getAuthUser } from "../utils/auth";
+import { addHoursJWT, getACIDFromJWT, getAuthUser, getTokenFromContext } from "../utils/auth";
 
 //I'll make it secure later
 app.post("/account/api/oauth/token", async (c) => {
@@ -143,7 +143,7 @@ app.post("/account/api/oauth/token", async (c) => {
 });
 
 app.delete("/account/api/oauth/sessions/kill", (c) => {
-    //TODO: This route is not implemented because old tokens already get deleted in the new token creation route
+    //TODO: This route is not properly implemented because old tokens already get deleted in the new token creation route
     return c.sendStatus(204);
 });
 
@@ -160,4 +160,32 @@ app.delete("/account/api/oauth/sessions/kill/:token", async (c) => {
 
     return c.sendStatus(204);
 
+});
+
+app.get("/account/api/oauth/verify", async (c) => {
+    const token = getTokenFromContext(c)
+    if (!token) return c.sendError(Aphrodite.authentication.invalidToken);
+
+    const decodedToken = jwt.verify(token, config.UPLINK_KEY);
+    if (typeof decodedToken === 'string' || !decodedToken) return c.sendError(Aphrodite.authentication.invalidToken);
+
+    const user = await getAuthUser(c);
+    if (!user) return c.sendError(Aphrodite.authentication.invalidToken);
+
+    return c.json({
+        token: token,
+        session_id: decodedToken.jti,
+        token_type: "bearer",
+        client_id: decodedToken.clid,
+        internal_client: true,
+        client_service: "fortnite",
+        account_id: user.accountId,
+        expires_in: Math.round(((addHoursJWT(new Date(decodedToken.creation_date), decodedToken.hours_expire).getTime()) - (new Date().getTime())) / 1000),
+        expires_at: addHoursJWT(new Date(decodedToken.creation_date), decodedToken.hours_expire).toISOString(),
+        auth_method: decodedToken.am,
+        display_name: user.displayName,
+        app: "fortnite",
+        in_app_id: user.accountId,
+        device_id: decodedToken.dvid
+    });
 });

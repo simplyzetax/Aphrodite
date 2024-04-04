@@ -1,7 +1,6 @@
 import app, { config } from "..";
-import { Aphrodite, ApiError } from "../utils/error";
+import { Aphrodite } from "../utils/error";
 import UAParser from "../utils/version";
-import { buildUniqueId } from './matchmaking';
 
 app.get("/fortnite/api/version", (c) => {
 

@@ -337,6 +337,9 @@ export const Aphrodite = {
         },
         get requestAlreadySent() {
             return new ApiError('errors.com.epicgames.friends.requestAlreadySent', 'Friendship request has already been sent.', 14014, 409);
+        },
+        get invalidData() {
+            return new ApiError('errors.com.epicgames.friends.invalidData', 'Invalid data', 14015, 400);
         }
     },
     internal: {
