@@ -142,11 +142,9 @@ app.post("/account/api/oauth/token", async (c) => {
 
 });
 
-app.delete("/account/api/oauth/sessions/kill", async (c) => {
-
+app.delete("/account/api/oauth/sessions/kill", (c) => {
     //TODO: This route is not implemented because old tokens already get deleted in the new token creation route
     return c.sendStatus(204);
-
 });
 
 app.delete("/account/api/oauth/sessions/kill/:token", async (c) => {

@@ -1,6 +1,6 @@
 import app from "..";
 
-app.get("/lightswitch/api/service/Fortnite/status", async (c) => {
+app.get("/lightswitch/api/service/Fortnite/status", (c) => {
     return c.json({
         serviceInstanceId: "fortnite",
         status: "UP",
@@ -12,14 +12,14 @@ app.get("/lightswitch/api/service/Fortnite/status", async (c) => {
         allowedActions: [],
         banned: false,
         launcherInfoDTO: {
-            "appName": "Fortnite",
-            "catalogItemId": "4fe75bbc5a674f4f9b356b5c90567da5",
-            "namespace": "fn"
+            appName: "Fortnite",
+            catalogItemId: "4fe75bbc5a674f4f9b356b5c90567da5",
+            namespace: "fn"
         }
     });
 });
 
-app.get("/lightswitch/api/service/bulk/status", async (c) => {
+app.get("/lightswitch/api/service/bulk/status", (c) => {
     return c.json([{
         serviceInstanceId: "fortnite",
         status: "UP",

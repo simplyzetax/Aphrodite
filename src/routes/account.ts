@@ -9,7 +9,7 @@ app.get("/account/api/public/account/:accountId", async (c) => {
     const user = await getAuthUser(c);
     if (!user) return c.sendError(Aphrodite.authentication.invalidToken);
 
-    const redactedEmail = user.email.split("@")[0] + "@********";
+    const redactedEmail = `${user.email.split("@")[0]}@********`;
 
     return c.json({
         id: user.accountId,
@@ -40,7 +40,7 @@ app.get("/account/api/public/account/*/externalAuths", (c) => {
 });
 
 app.get("/account/api/public/account", async (c) => {
-    let response = [];
+    const response = [];
 
     const accountId = c.req.query("accountId");
 
@@ -59,7 +59,7 @@ app.get("/account/api/public/account", async (c) => {
     if (Array.isArray(accountId)) {
         const foundUsers = await db.select().from(users).where(eq(users.accountId, accountId));
 
-        for (let user of foundUsers) {
+        for (const user of foundUsers) {
             if (response.length >= 100) break;
 
             response.push({

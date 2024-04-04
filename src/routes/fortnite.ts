@@ -42,10 +42,10 @@ app.get("/statsproxy/api/statsv2/account/:accountId", (c) => {
 
 app.get("/fortnite/api/stats/accountId/:accountId/bulk/window/alltime", (c) => {
     return c.json({
-        "startTime": 0,
-        "endTime": 0,
-        "stats": {},
-        "accountId": c.req.param("accountId")
+        startTime: 0,
+        endTime: 0,
+        stats: {},
+        accountId: c.req.param("accountId")
     });
 });
 

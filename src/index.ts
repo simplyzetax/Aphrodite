@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import path from "node:path";
 
 import responseEnhancementsMiddleware from "./middleware/rem";
 import { loadRoutes } from "./utils/routing";
@@ -29,8 +30,6 @@ export const db = dbInstance.client;
 
 await loadRoutes('../../src/routes/');
 
-import path from "path";
-
 app.notFound((c) => c.sendError(Aphrodite.basic.notFound));
 
-Logger.startup(`Aphrodite listening on port 3000 😏`);
+Logger.startup("Aphrodite listening on port 3000 😏");
