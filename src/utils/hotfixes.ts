@@ -38,12 +38,12 @@ class Hotfixes {
 
         const rows = await db.execute(statement);
 
-        if (!rows.length) {
+        if (!rows.rowCount) {
             throw new Error(`Hotfixes not found for file: ${this.filename} and account id: ${accountId}`);
         }
 
-        this.hotfixes = rows.map((row: any) => ({
-            id: Number(row.id),
+        this.hotfixes = rows.rows.map((row: any) => ({
+            id: String(row.id),
             enabled: Boolean(row.enabled),
             filename: String(row.file),
             section: String(row.section),
@@ -130,8 +130,10 @@ class Hotfixes {
             const key = processedLine.substring(0, splitIndex).trim();
             const value = processedLine.substring(splitIndex + 1);
 
-            const path = file.name!.split('/');
+            const path = file.name!.split('\\');
             const filename = path[path.length - 1];
+
+
 
             hotfixArray.push({
                 filename: filename,

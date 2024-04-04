@@ -1,11 +1,12 @@
 import { sql } from "drizzle-orm";
 import { jsonb, pgTable, text, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
+import { profiles } from "./profiles";
 
 export const loadouts = pgTable(
     "loadouts",
     {
         id: uuid("id").primaryKey().default(sql`uuid_generate_v4()`),
-        profileId: text("profile_id").notNull(),
+        profileId: uuid("profile_id").references(() => profiles.id).notNull(),
         templateId: text("template_id").notNull(),
         lockerName: text("locker_name").notNull(),
         bannerId: text("banner_id").notNull(),

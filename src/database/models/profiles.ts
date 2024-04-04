@@ -1,10 +1,11 @@
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, uniqueIndex, boolean, jsonb, index, uuid } from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 export const profiles = pgTable('profiles', {
     id: uuid('id').primaryKey().default(sql`uuid_generate_v4()`),
-    accountId: varchar('account_id', { length: 256 }).notNull(),
-    type: varchar('type', { length: 256 }).notNull(),
+    accountId: text('account_id').references(() => users.accountId).notNull(),
+    type: text('type').notNull(),
     revision: integer('revision').notNull(),
 }, (profiles) => {
     return {

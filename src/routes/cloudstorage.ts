@@ -24,7 +24,7 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
         const sha1Hex = sha1.digest("hex");
 
         return {
-            uniqueFilename: `${name}-${sha256Hex}`,
+            uniqueFilename: `${name}`,
             filename: name,
             hash: sha1Hex,
             hash256: sha256Hex,

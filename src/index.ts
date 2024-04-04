@@ -8,6 +8,7 @@ import { Config } from "./utils/config";
 
 import "./matchmaker/server";
 import DB from "./database/database";
+import Hotfixes from "./utils/hotfixes";
 
 const app = new Hono({
     strict: false,
@@ -27,6 +28,8 @@ await dbInstance.connect();
 export const db = dbInstance.client;
 
 await loadRoutes('../../src/routes/');
+
+import path from "path";
 
 app.notFound((c) => c.sendError(Aphrodite.basic.notFound));
 

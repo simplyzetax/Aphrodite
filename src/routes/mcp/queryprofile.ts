@@ -1,20 +1,17 @@
-import { and, eq } from "drizzle-orm";
-import app, { db } from "../..";
-import { profiles } from "../../database/models/profiles";
-import { getAuthUser } from "../../utils/auth";
+import app from "../..";
+import { getACIDFromJWt, getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
-import ItemBuilder from "../../utils/builders/items";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
+import Timing from "../../utils/timing";
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (c) => {
 
     const unsafeAccountId = c.req.param("accountId");
 
-    const user = await getAuthUser(c);
-    if (!user) return c.sendError(Aphrodite.authentication.invalidToken);
+    const accountId = getACIDFromJWt(c);
 
-    if (user.accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
+    if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
 
     const requestedProfileId = c.req.query("profileId");
     if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
@@ -22,9 +19,9 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const ua = UAParser.parse(c.req.header("User-Agent"));
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
-    const ph = new ProfileHelper(requestedProfileId, ua.season);
+    const ph = new ProfileHelper(requestedProfileId, ua.build);
 
-    const fullProfile = await ph.getProfile(user.accountId);
+    const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
     return c.json({

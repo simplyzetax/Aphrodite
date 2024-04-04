@@ -14,8 +14,13 @@ class ItemBuilder {
         this.profileId = profileId;
     }
 
-    async buildItems(): Promise<Record<string, AthenaItem> | undefined> {
-        this.dbItems = await db.select().from(items).where(eq(items.profileId, this.profileId));
+    async buildItems(preloadedItems?: Item[]): Promise<Record<string, AthenaItem> | undefined> {
+
+        if (preloadedItems) {
+            this.dbItems = preloadedItems;
+        } else {
+            this.dbItems = await db.select().from(items).where(eq(items.profileId, this.profileId));
+        }
 
         if (this.dbItems.length === 0) return undefined;
 

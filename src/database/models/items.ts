@@ -1,12 +1,18 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, uniqueIndex, boolean, jsonb, index, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, uniqueIndex, boolean, jsonb, index, uuid } from "drizzle-orm/pg-core";
+import { profiles } from "./profiles";
+
+const defaultJsonAttributes = {
+    item_seen: true,
+    variants: []
+}
 
 export const items = pgTable('items', {
     id: uuid('id').primaryKey().default(sql`uuid_generate_v4()`),
-    profileId: text('profile_id').notNull(),
+    profileId: uuid('profile_id').references(() => profiles.id).notNull(),
     templateId: text('template_id').notNull(),
-    jsonAttributes: jsonb('attributes').notNull(),
-    quantity: integer('quantity').notNull(),
+    jsonAttributes: jsonb('attributes').notNull().default(defaultJsonAttributes),
+    quantity: integer('quantity').notNull().default(1),
     favorite: boolean('favorite').default(false),
     seen: boolean('has_seen').default(false),
 }, (users) => {

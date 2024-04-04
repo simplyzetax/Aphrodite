@@ -1,18 +1,19 @@
-import { and, eq } from "drizzle-orm";
 import app, { db } from "../..";
-import { getAuthUser } from "../../utils/auth";
+import { getACIDFromJWt, getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
+import Logger from "../../utils/logging";
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/:action', async (c) => {
 
+    Logger.warn("MCP catchall route hit");
+
     const unsafeAccountId = c.req.param("accountId");
 
-    const user = await getAuthUser(c);
-    if (!user) return c.sendError(Aphrodite.authentication.invalidToken);
+    const accountId = getACIDFromJWt(c);
 
-    if (user.accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
+    if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
 
     const requestedProfileId = c.req.query("profileId");
     if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
@@ -24,7 +25,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/:action', async (c) =>
 
     const ph = new ProfileHelper(requestedProfileId, ua.season);
 
-    const fullProfile = await ph.getProfile(user.accountId);
+    const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
     return c.json({

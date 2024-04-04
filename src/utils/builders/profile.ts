@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../..";
 import { profiles } from "../../database/models/profiles";
 import { loadouts } from "../../database/models/loadouts";
@@ -6,6 +6,8 @@ import { attributes } from "../../database/models/attributes";
 import ItemBuilder from "./items";
 import { buildLoadouts } from "./loadouts";
 import type { ProfileSchemaDB } from "../../types/athena";
+import Timing from "../timing";
+import { items } from "../../database/models/items";
 
 class Profile {
     public profile: ProfileSchemaDB;
@@ -15,58 +17,77 @@ class Profile {
     }
 }
 
+const preparedJoinedQueryOther = db
+    .select()
+    .from(profiles)
+    .where(and(eq(profiles.type, sql.placeholder('type')), eq(profiles.accountId, sql.placeholder('accountId'))))
+    .leftJoin(attributes, eq(profiles.id, attributes.profileId))
+    .leftJoin(items, eq(profiles.id, items.profileId))
+    .leftJoin(loadouts, eq(profiles.id, loadouts.profileId));
+
+
+
 export class ProfileHelper {
 
     type: string;
-    season: number;
+    build: number;
 
-    constructor(profileType: string, season: number) {
+    constructor(profileType: string, build: number) {
         this.type = profileType;
-        this.season = season;
+        this.build = build;
     }
 
     public async getProfile(accountId: string): Promise<Profile | undefined> {
         try {
-            // Fetch profile data from database
-            const [profileData] = await db.select().from(profiles).where(and(eq(profiles.type, this.type), eq(profiles.accountId, accountId)));
+            // Fetch profile from database (single row)
+            const t1 = new Timing("getProfileAndAttributes");
+            const result = await preparedJoinedQueryOther.execute({ type: this.type, accountId });
+            t1.print();
+
+            // Access the fetchedProfile and fetchedAttributes from the result
+            const fetchedProfile = result.map(({ profiles }) => profiles)[0];
+            const fetchedAttributes = result.map(({ attributes }) => attributes);
+            const fetchedItems = result.map(({ items }) => items);
+            const fetchedLoadouts = result.map(({ loadouts }) => loadouts);
 
             // Initialize loadoutsData and bLoadouts as empty, they will be populated if profile type is 'athena'
             let loadoutsData = [];
             let bLoadouts = {};
 
-            // Fetch associated attributes data
-            const attributesData = await db.select().from(attributes).where(eq(attributes.profileId, profileData.id));
-
             // If profile type is 'athena', fetch and build loadouts
-            if (profileData.type === 'athena') {
-                loadoutsData = await db.select().from(loadouts).where(eq(loadouts.profileId, profileData.id));
+            if (fetchedProfile.type === 'athena') {
+                loadoutsData = fetchedLoadouts.filter(loadout => loadout !== null);
                 bLoadouts = buildLoadouts(loadoutsData);
             }
 
             // Convert attributes data to a key-value pair object
             const attributesObject: Record<string, any> = {};
-            for (const attribute of attributesData) {
+            for (const attribute of fetchedAttributes) {
+                if (attribute == null || attribute.key == null || attribute.valueJSON == null) {
+                    continue;
+                }
                 attributesObject[attribute.key] = attribute.valueJSON;
             }
 
             // Build items
-            const itemBuilder = new ItemBuilder(profileData.id);
-            const bItems = await itemBuilder.buildItems();
+            const itemBuilder = new ItemBuilder(fetchedProfile.id);
+            const nonNullItems = fetchedItems.filter(item => item !== null);
+            const bItems = await itemBuilder.buildItems(nonNullItems);
 
             // Construct profile object
             const profileObject: ProfileSchemaDB = {
-                accountId: profileData.accountId,
-                profileUniqueId: profileData.id,
+                accountId: fetchedProfile.accountId,
+                profileUniqueId: fetchedProfile.id,
                 stats: {
                     attributes: { ...attributesObject },
                 },
                 commandRevision: 0,
                 created: new Date().toISOString(),
                 updated: new Date().toISOString(),
-                rvn: profileData.revision,
+                rvn: fetchedProfile.revision,
                 wipeNumber: 0,
-                profileId: profileData.type,
-                version: `${this.season}`,
+                profileId: fetchedProfile.type,
+                version: `${this.build}`,
                 items: {
                     ...bItems,
                     ...bLoadouts,

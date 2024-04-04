@@ -1,8 +1,9 @@
+import { sql } from "drizzle-orm";
 import { users } from "./users";
-import { boolean, index, integer, pgTable, text } from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
 
 export const hotfixes = pgTable('hotfixes', {
-    id: integer('id').primaryKey(),
+    id: uuid('id').primaryKey().default(sql`uuid_generate_v4()`),
     filename: text('file').notNull(),
     section: text('section').notNull(),
     key: text('key').notNull(),

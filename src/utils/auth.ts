@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 
 import { users, type User } from "../database/models/users";
-import { db } from "..";
+import { config, db } from "..";
 import { tokens } from "../database/models/tokens";
 import { eq } from "drizzle-orm";
 
@@ -20,7 +20,7 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
 
     let token = auth.replace(/Bearer eg1~/i, "");
 
-    const decoded = jwt.decode(token);
+    const decoded = jwt.verify(token, config.UPLINK_KEY);
     if (!decoded || typeof decoded === 'string' || !isJwtPayload(decoded)) {
         throw new Error('Invalid token');
     }
@@ -36,4 +36,23 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
     if (!validUser) return undefined;
 
     return validUser;
+}
+
+export function getACIDFromJWt(c: Context): string | undefined {
+
+    const auth = c.req.header("Authorization");
+    if (!auth) {
+        return undefined;
+    }
+
+    let token = auth.replace(/Bearer eg1~/i, "");
+
+    const decoded = jwt.verify(token, config.UPLINK_KEY);
+    if (typeof decoded === 'string' || !isJwtPayload(decoded)) {
+        throw new Error('Invalid token');
+    }
+
+    const decodedToken: JwtPayload = decoded;
+
+    return decodedToken.sub;
 }

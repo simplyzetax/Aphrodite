@@ -1,10 +1,11 @@
-import { index, jsonb, pgTable, varchar } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
+import { profiles } from "./profiles";
 
 export const attributes = pgTable('attributes', {
-    profileId: varchar('profile_id', { length: 256 }).notNull(),
-    key: varchar('key', { length: 256 }).notNull(),
+    profileId: uuid('profile_id').references(() => profiles.id).notNull(),
+    key: text('key').notNull(),
     valueJSON: jsonb('value_json').notNull(),
-    type: varchar('type', { length: 256 }).notNull(),
+    type: text('type').notNull(),
 }, (attributes) => {
     return {
         idIndex: index('attr_id_idx').on(attributes.profileId),
