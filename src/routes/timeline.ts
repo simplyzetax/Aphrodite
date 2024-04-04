@@ -2,43 +2,34 @@ import app from "..";
 import { Aphrodite } from "../utils/error";
 import UAParser from "../utils/version";
 
-app.get("/fortnite/api/calendar/v1/timeline", (c) => {
+const forever = "9999-01-01T00:00:00.000Z";
 
-    const mem = UAParser.parse(c.req.header("User-Agent"));
-    if (!mem || typeof mem.season !== 'number') return c.sendError(Aphrodite.internal.invalidUserAgent)
-
-    const activeEvents = [
-        {
-            eventType: `EventFlag.Season${mem.season}`,
-            activeUntil: new Date().toISOString(),
-            activeSince: new Date().toISOString(),
-        },
-        {
-            eventType: `EventFlag.${mem.lobby}`,
-            activeUntil: new Date().toISOString(),
-            activeSince: new Date().toISOString(),
-        },
-        {
-            "eventType": "EventFlag.Winterfest.Tree",
-            "activeUntil": "9999-01-01T00:00:00.000Z",
-            "activeSince": "2020-01-01T00:00:00.000Z"
-        },
-        {
-            "eventType": "EventFlag.LTE_WinterFest",
-            "activeUntil": "9999-01-01T00:00:00.000Z",
-            "activeSince": "2020-01-01T00:00:00.000Z"
-        },
-        {
-            "eventType": "EventFlag.LTE_WinterFest2019",
-            "activeUntil": "9999-01-01T00:00:00.000Z",
-            "activeSince": "2020-01-01T00:00:00.000Z"
-        }
+function createActiveEvents(season: number, lobby: string): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
+    const now = new Date().toISOString();
+    return [
+        { eventType: `EventFlag.Season${season}`, activeUntil: now, activeSince: now },
+        { eventType: `EventFlag.${lobby}`, activeUntil: now, activeSince: now },
+        { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+        { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+        { eventType: "EventFlag.LTE_WinterFest2019", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
     ];
+}
 
+function getIsoDateOneMinuteBeforeMidnight(): string {
     const todayAtMidnight = new Date();
     todayAtMidnight.setHours(24, 0, 0, 0);
     const todayOneMinuteBeforeMidnight = new Date(todayAtMidnight.getTime() - 1);
-    const isoDate = todayOneMinuteBeforeMidnight.toISOString();
+    return todayOneMinuteBeforeMidnight.toISOString();
+}
+
+app.get("/fortnite/api/calendar/v1/timeline", (c) => {
+    const mem = UAParser.parse(c.req.header("User-Agent"));
+    if (!mem || typeof mem.season !== 'number') return c.sendError(Aphrodite.internal.invalidUserAgent)
+
+    const activeEvents = createActiveEvents(mem.season, mem.lobby);
+    const isoDate = getIsoDateOneMinuteBeforeMidnight();
+    const todayAtMidnight = new Date();
+    todayAtMidnight.setHours(24, 0, 0, 0);
 
     return c.json({
         channels: {
@@ -58,11 +49,11 @@ app.get("/fortnite/api/calendar/v1/timeline", (c) => {
                             seasonTemplateId: `AthenaSeason:athenaseason${mem.season}`,
                             matchXpBonusPoints: 0,
                             seasonBegin: todayAtMidnight.toISOString(),
-                            seasonEnd: todayAtMidnight.toISOString(),
-                            seasonDisplayedEnd: todayAtMidnight.toISOString(),
+                            seasonEnd: forever,
+                            seasonDisplayedEnd: forever,
                             weeklyStoreEnd: isoDate,
-                            stwEventStoreEnd: todayAtMidnight.toISOString(), //TODO: Change to actual date in 24h for example
-                            stwWeeklyStoreEnd: todayAtMidnight.toISOString(),
+                            stwEventStoreEnd: forever,
+                            stwWeeklyStoreEnd: forever,
                             sectionStoreEnds: {
                                 Featured: isoDate,
                             },
