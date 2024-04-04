@@ -1,5 +1,5 @@
 import type { StatusCode } from 'hono/utils/http-status';
-import { type ApiError } from '../utils/error';
+import type { ApiError } from '../utils/error';
 import { createMiddleware } from 'hono/factory';
 
 const responseEnhancementsMiddleware = () =>

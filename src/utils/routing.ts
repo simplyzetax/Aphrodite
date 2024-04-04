@@ -18,9 +18,9 @@ export async function loadRoutes(dir: string, isInitialCall = true): Promise<voi
     for (const entry of entries) {
         if (entry.name === "catchall.ts") continue;
         count++;
-        const res = path.resolve(import.meta.dir + "/" + dir, entry.name);
+        const res = path.resolve(`${import.meta.dir}/${dir}`, entry.name);
         if (entry.isDirectory()) {
-            importPromises.push(loadRoutes(dir + entry.name + "/", false));
+            importPromises.push(loadRoutes(`${dir + entry.name}/`, false));
         } else {
             importPromises.push(import(res));
         }

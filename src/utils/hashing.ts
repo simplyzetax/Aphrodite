@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 
 class Hashing {
 
@@ -72,7 +72,7 @@ class Hashing {
         const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
         let encrypted = cipher.update(data, 'utf8', 'hex');
         encrypted += cipher.final('hex');
-        return iv.toString('hex') + ':' + encrypted;
+        return `${iv.toString('hex')}:${encrypted}`;
     }
 
     /**
@@ -83,7 +83,11 @@ class Hashing {
      */
     public static decrypt(data: string, password: string): string {
         const textParts = data.split(':');
-        const iv = Buffer.from(textParts.shift()!, 'hex');
+        const shifted = textParts.shift();
+        if (!shifted) {
+            throw new Error('Invalid data');
+        }
+        const iv = Buffer.from(shifted, 'hex');
         const key = crypto.scryptSync(password, 'salt', 32);
         const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
         let decrypted = decipher.update(textParts.join(':'), 'hex', 'utf8');

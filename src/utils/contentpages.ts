@@ -23,12 +23,12 @@ class Contentpages {
             const mem = UAParser.parse(c.req.header("User-Agent"));
             if (!mem || typeof mem.season !== 'number') return { error: "Failed" };
 
-            modes.forEach(mode => {
+            for (const mode of modes) {
                 if (contentpages.subgameselectdata[mode]) {
-                    contentpages.subgameselectdata[mode].message.title = contentpages.subgameselectdata[mode].message.title["en"]
-                    contentpages.subgameselectdata[mode].message.body = contentpages.subgameselectdata[mode].message.body["en"]
+                    contentpages.subgameselectdata[mode].message.title = contentpages.subgameselectdata[mode].message.title.en
+                    contentpages.subgameselectdata[mode].message.body = contentpages.subgameselectdata[mode].message.body.en
                 }
-            })
+            }
 
             if (Array.isArray(contentpages.dynamicbackgrounds.backgrounds.backgrounds) && contentpages.dynamicbackgrounds.backgrounds.backgrounds.length >= 2) {
                 contentpages.dynamicbackgrounds.backgrounds.backgrounds[0].stage = `season${mem.season}`;

@@ -1,4 +1,4 @@
-import { type Context } from 'hono';
+import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
 export interface ResponseBody {
@@ -60,7 +60,7 @@ export class ApiError {
     apply(c: Context): ResponseBody {
         this.response.errorMessage = this.getMessage();
         c.res.headers.set('Content-Type', 'application/json');
-        c.res.headers.set('X-Epic-Error-Code', this.response.numericErrorCode + '');
+        c.res.headers.set('X-Epic-Error-Code', `${this.response.numericErrorCode}`);
         c.res.headers.set('X-Epic-Error-Name', this.response.errorCode);
         c.status(this.statusCode as any);
         return this.response;
@@ -79,7 +79,7 @@ export class ApiError {
             status: this.statusCode,
             headers: {
                 'Content-Type': 'application/json',
-                'X-Epic-Error-Code': this.response.numericErrorCode + '',
+                'X-Epic-Error-Code': `${this.response.numericErrorCode}`,
                 'X-Epic-Error-Name': this.response.errorCode
             }
         });

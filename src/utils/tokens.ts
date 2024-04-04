@@ -17,23 +17,23 @@ class TokenManager {
 
     public async newAccessToken(clientId: string, gt: string): Promise<string> {
         const accessToken = jwt.sign({
-            "app": "fortnite",
-            "sub": this.user.accountId,
-            "dvid": Math.floor(Math.random() * 1000000000),
-            "mver": false,
-            "clid": clientId,
-            "dn": this.user.displayName,
-            "am": gt,
-            "p": Encoding.encodeBase64(UUID.gr()),
-            "iai": this.user.accountId,
-            "sec": 1,
-            "clsvc": "fortnite",
-            "t": "s",
-            "ic": true,
-            "jti": UUID.gr(),
-            "creation_date": new Date(),
-            "hours_expire": 4
-        }, config.UPLINK_KEY, { expiresIn: `4h` });
+            app: "fortnite",
+            sub: this.user.accountId,
+            dvid: Math.floor(Math.random() * 1000000000),
+            mver: false,
+            clid: clientId,
+            dn: this.user.displayName,
+            am: gt,
+            p: Encoding.encodeBase64(UUID.gr()),
+            iai: this.user.accountId,
+            sec: 1,
+            clsvc: "fortnite",
+            t: "s",
+            ic: true,
+            jti: UUID.gr(),
+            creation_date: new Date(),
+            hours_expire: 4
+        }, config.UPLINK_KEY, { expiresIn: "4h" });
 
         await db.insert(tokens).values({
             token: accessToken,
@@ -46,23 +46,23 @@ class TokenManager {
 
     public async newRefreshToken(clientId: string): Promise<string> {
         const refreshToken = jwt.sign({
-            "app": "fortnite",
-            "sub": this.user.accountId,
-            "dvid": Math.floor(Math.random() * 1000000000),
-            "mver": false,
-            "clid": clientId,
-            "dn": this.user.displayName,
-            "am": "refresh",
-            "p": Encoding.encodeBase64(UUID.gr()),
-            "iai": this.user.accountId,
-            "sec": 1,
-            "clsvc": "fortnite",
-            "t": "s",
-            "ic": true,
-            "jti": UUID.gr(),
-            "creation_date": new Date(),
-            "hours_expire": 24
-        }, config.UPLINK_KEY, { expiresIn: `24h` });
+            app: "fortnite",
+            sub: this.user.accountId,
+            dvid: Math.floor(Math.random() * 1000000000),
+            mver: false,
+            clid: clientId,
+            dn: this.user.displayName,
+            am: "refresh",
+            p: Encoding.encodeBase64(UUID.gr()),
+            iai: this.user.accountId,
+            sec: 1,
+            clsvc: "fortnite",
+            t: "s",
+            ic: true,
+            jti: UUID.gr(),
+            creation_date: new Date(),
+            hours_expire: 24
+        }, config.UPLINK_KEY, { expiresIn: "24h" });
 
         await db.insert(tokens).values({
             token: refreshToken,

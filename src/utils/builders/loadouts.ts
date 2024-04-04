@@ -1,7 +1,6 @@
 import type { ILocker, TempLoadouts } from "../../types/loadouts";
 
 export function buildLoadouts(lockers: ILocker[]) {
-
     const tempLoadouts: TempLoadouts = {};
     for (const locker of lockers) {
         tempLoadouts[locker.id] = {
@@ -9,13 +8,15 @@ export function buildLoadouts(lockers: ILocker[]) {
             quantity: 1,
             attributes: {
                 locker_slots_data: {
-                    slots: ['Pickaxe', 'Dance', 'Glider', 'Character', 'Backpack', 'ItemWrap', 'LoadingScreen', 'SkyDiveContrail', 'MusicPack'].reduce((acc, key) => ({
-                        ...acc,
-                        [key]: {
-                            items: [`${locker[`${key.toLowerCase()}Id`]}`],
-                            activeVariants: key === 'Character' ? [{ variants: [] }] : [],
-                        }
-                    }), {}),
+                    slots: ['Pickaxe', 'Dance', 'Glider', 'Character', 'Backpack', 'ItemWrap', 'LoadingScreen', 'SkyDiveContrail', 'MusicPack'].reduce((acc, key) => {
+                        const newSlot = {
+                            [key]: {
+                                items: [`${locker[`${key.toLowerCase()}Id`]}`],
+                                activeVariants: key === 'Character' ? [{ variants: [] }] : [],
+                            }
+                        };
+                        return Object.assign(acc, newSlot);
+                    }, {}),
                 },
                 use_count: 0,
                 banner_icon_template: locker.bannerId,

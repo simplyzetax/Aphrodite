@@ -53,11 +53,11 @@ class UAParser {
         const clNumber = Number(cl);
         if (Number.isNaN(clNumber) || clNumber < 3724489) {
             return 0;
-        } else if (clNumber <= 3790078) {
-            return 1;
-        } else {
-            return 2;
         }
+        if (clNumber <= 3790078) {
+            return 1;
+        }
+        return 2;
     }
 
     public static isAllowedBuild(build: number) {

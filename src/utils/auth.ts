@@ -1,11 +1,11 @@
 import type { Context } from "hono";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
+import { eq, sql } from "drizzle-orm";
 
 import { users, type User } from "../database/models/users";
 import { config, db } from "..";
 import { tokens } from "../database/models/tokens";
-import { eq } from "drizzle-orm";
 
 function isJwtPayload(object: any): object is JwtPayload {
     return 'iat' in object && 'exp' in object && 'sub' in object;
@@ -26,6 +26,9 @@ export function verifyClientToken(authorization: string): boolean {
     }
 }
 
+const preparedGetUser = db.select().from(users).where(eq(users.accountId, sql.placeholder('accountId')))
+const preparedGetToken = db.select().from(tokens).where(eq(tokens.token, sql.placeholder('token')))
+
 /**
  * 
  * @param c The request context
@@ -38,7 +41,7 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
         return undefined;
     }
 
-    let token = auth.replace(/Bearer eg1~/i, "");
+    const token = auth.replace(/Bearer eg1~/i, "");
 
     const decoded = jwt.verify(token, config.UPLINK_KEY);
     if (!decoded || typeof decoded === 'string' || !isJwtPayload(decoded)) {
@@ -47,12 +50,12 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
 
     const decodedToken: JwtPayload = decoded;
 
-    const [validToken] = await db.select().from(tokens).where(eq(tokens.token, token));
+    const [validToken] = await preparedGetToken.execute({ token });
     if (!validToken) return undefined;
 
     if (!decodedToken.sub) return undefined;
 
-    const [validUser] = await db.select().from(users).where(eq(users.accountId, decodedToken.sub));
+    const [validUser] = await preparedGetUser.execute({ accountId: decodedToken.sub });
     if (!validUser) return undefined;
 
     return validUser;
@@ -70,7 +73,7 @@ export function getACIDFromJWT(c: Context): string | undefined {
             return undefined;
         }
 
-        let token = auth.replace(/Bearer eg1~/i, "");
+        const token = auth.replace(/Bearer eg1~/i, "");
 
         const decoded = jwt.verify(token, config.UPLINK_KEY);
         if (typeof decoded === 'string' || !isJwtPayload(decoded)) {

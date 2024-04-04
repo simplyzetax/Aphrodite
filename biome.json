@@ -18,6 +18,9 @@
 			},
 			"correctness": {
 				"useIsNan": "error"
+			},
+			"complexity": {
+				"noStaticOnlyClass": "off"
 			}
 		}
 	}

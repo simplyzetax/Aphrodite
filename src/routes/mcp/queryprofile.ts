@@ -30,8 +30,8 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
         profileChangesBaseRevision: 0,
         profileChanges: [
             {
-                "changeType": "fullProfileUpdate",
-                "profile": fullProfile.profile,
+                changeType: "fullProfileUpdate",
+                profile: fullProfile.profile,
             }
         ],
         profileCommandRevision: 0,

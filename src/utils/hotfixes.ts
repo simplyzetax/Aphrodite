@@ -60,12 +60,18 @@ class Hotfixes {
                 sections.set(trimmedSection, new Map());
             }
 
-            const section = sections.get(trimmedSection)!;
+            const section = sections.get(trimmedSection);
+            if (!section) continue;
             if (!section.has(hotfix.key)) {
                 section.set(hotfix.key, []);
             }
 
-            section.get(hotfix.key)!.push(hotfix.value);
+            let hotfixArray = section.get(hotfix.key);
+            if (!hotfixArray) {
+                hotfixArray = [];
+                section.set(hotfix.key, hotfixArray);
+            }
+            hotfixArray.push(hotfix.value);
 
             let hotfixStat = Hotfixes.hotfixStats.get(hotfix.filename);
             if (!hotfixStat) {
@@ -120,7 +126,8 @@ class Hotfixes {
             const key = processedLine.substring(0, splitIndex).trim();
             const value = processedLine.substring(splitIndex + 1);
 
-            const path = file.name!.split('\\');
+            if (!file.name) throw new Error('File name is undefined');
+            const path = file.name.split('\\');
             const filename = path[path.length - 1];
 
 
@@ -138,7 +145,8 @@ class Hotfixes {
             await db.insert(hotfixes).values(hotfixArray);
         } catch (error) {
             Logger.error(`Error inserting hotfixes for file: ${file.name}`, error);
-            const path = file.name!.split('/');
+            if (!file.name) throw new Error('File name is undefined');
+            const path = file.name.split('/');
             const filename = path[path.length - 1];
             await db.delete(hotfixes).where(eq(hotfixes.filename, filename));
         }

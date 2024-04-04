@@ -37,7 +37,7 @@ class Uplink {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.error);
+            throw new Error(JSON.stringify(data));
         }
 
 
@@ -47,7 +47,7 @@ class Uplink {
     public static async load() {
         const response = await fetch(`${BASE_URL}/features`, {
             headers: {
-                'Authorization': `Bearer ${config.UPLINK_KEY}`
+                Authorization: `Bearer ${config.UPLINK_KEY}`
             }
         });
 

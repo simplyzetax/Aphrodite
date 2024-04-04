@@ -80,31 +80,31 @@ class Logger {
         });
 
     private static getLogLevel() {
-        return this.currentLogLevel; // Use the new static variable
+        return Logger.currentLogLevel; // Use the new static variable
     }
 
     public static setLogLevel(level: keyof typeof LogLevelsMap) {
-        this.currentLogLevel = LogLevelsMap[level].level;
+        Logger.currentLogLevel = LogLevelsMap[level].level;
     }
 
     public static debug = (...args: unknown[]) => {
         if (this.getLogLevel() > LogLevelsMap.DEBUG.level) return;
-        console.log(chalk.bgBlue(` DEBUG `), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
+        console.log(chalk.bgBlue(" DEBUG "), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
     };
 
     public static error = (...args: unknown[]) => {
         if (this.getLogLevel() > LogLevelsMap.ERROR.level) return;
-        console.log(chalk.bgRed(` ERROR `), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
+        console.log(chalk.bgRed(" ERROR "), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
     };
 
     public static warn = (...args: unknown[]) => {
         if (this.getLogLevel() > LogLevelsMap.WARNING.level) return;
-        console.log(chalk.bgYellow(` WARN `), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
+        console.log(chalk.bgYellow(" WARN "), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
     };
 
     public static info = (...args: unknown[]) => {
         if (this.getLogLevel() > LogLevelsMap.INFO.level) return;
-        console.log(chalk.bgCyan(` INFO `), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
+        console.log(chalk.bgCyan(" INFO "), ...args.map((arg) => typeof arg === 'string' ? chalk.gray(arg) : chalk.gray(JSON.stringify(arg))));
     };
 
     public static startup = (...args: unknown[]) => {
@@ -118,7 +118,7 @@ class Logger {
 
     public static changeLogLevel = (level: keyof typeof LogLevelsMap) => {
         this.setLogLevel(level);
-        console.log(chalk.bgCyan(` INFO `), chalk.gray(`Changed log level to ${level}`));
+        console.log(chalk.bgCyan(" INFO "), chalk.gray(`Changed log level to ${level}`));
     }
 }
 
