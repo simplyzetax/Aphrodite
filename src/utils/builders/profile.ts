@@ -6,16 +6,7 @@ import { attributes } from "../../database/models/attributes";
 import ItemBuilder from "./items";
 import { buildLoadouts } from "./loadouts";
 import type { ProfileSchemaDB } from "../../types/athena";
-import Timing from "../timing";
 import { items } from "../../database/models/items";
-
-class Profile {
-    public profile: ProfileSchemaDB;
-
-    constructor(profile: ProfileSchemaDB) {
-        this.profile = profile;
-    }
-}
 
 const preparedJoinedQueryOther = db
     .select()
@@ -25,7 +16,13 @@ const preparedJoinedQueryOther = db
     .leftJoin(items, eq(profiles.id, items.profileId))
     .leftJoin(loadouts, eq(profiles.id, loadouts.profileId));
 
+class Profile {
+    public profile: ProfileSchemaDB;
 
+    constructor(profile: ProfileSchemaDB) {
+        this.profile = profile;
+    }
+}
 
 export class ProfileHelper {
 
@@ -40,9 +37,7 @@ export class ProfileHelper {
     public async getProfile(accountId: string): Promise<Profile | undefined> {
         try {
             // Fetch profile from database (single row)
-            const t1 = new Timing("getProfileAndAttributes");
             const result = await preparedJoinedQueryOther.execute({ type: this.type, accountId });
-            t1.print();
 
             // Access the fetchedProfile and fetchedAttributes from the result
             const fetchedProfile = result.map(({ profiles }) => profiles)[0];

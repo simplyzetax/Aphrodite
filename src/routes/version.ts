@@ -1,6 +1,7 @@
 import app, { config } from "..";
 import { Aphrodite, ApiError } from "../utils/error";
 import UAParser from "../utils/version";
+import { buildUniqueId } from './matchmaking';
 
 app.get("/fortnite/api/version", (c) => {
 
@@ -53,7 +54,7 @@ app.get("/fortnite/api/v2/versioncheck/:platform", (c) => {
     if (!UAParser.isAllowedBuild(version.build)) {
         return c.json({
             type: "SOFT_UPDATE",
-            provided: version.season,
+            provided: version.build,
             allowed: config.ALLOWED_SEASONS
         }, 418);
     }
