@@ -207,26 +207,7 @@
   "savetheworldnews": {
     "news": {
       "_type": "Battle Royale News",
-      "messages": [
-        {
-          "image": "https://cdn.discordapp.com/attachments/927739901540188200/930882355818823720/1_of9OCSRWoAoS3_lNVKqM2g.png",
-          "hidden": false,
-          "_type": "CommonUI Simple Message Base",
-          "adspace": "DISCORD!",
-          "title": "Join my discord server!",
-          "body": "https://discord.gg/KJ8UaHZ",
-          "spotlight": false
-        },
-        {
-          "image": "",
-          "hidden": false,
-          "_type": "CommonUI Simple Message Base",
-          "adspace": "ENJOY!",
-          "title": "Aphrodite",
-          "body": "Unstable Alpha",
-          "spotlight": false
-        }
-      ]
+      "messages": []
     },
     "_title": "SaveTheWorldNews",
     "_noIndex": false,
@@ -1198,7 +1179,7 @@
           "hidden": false,
           "_type": "CommonUI Simple Message Base",
           "title": "Aphrodite",
-          "body": "Unstable Alpha",
+          "body": "Best backend fr",
           "spotlight": true
         }
       ]

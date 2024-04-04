@@ -96,6 +96,7 @@ export function getTokenFromContext(c: Context): string | undefined {
     return auth.replace(/Bearer eg1~/i, "");
 }
 
+// Shamelessy stolen from Lawin (Love him)
 export function addHoursJWT(arg0: Date, hours_expire: any) {
     const date = new Date(arg0);
     date.setHours(date.getHours() + hours_expire);
