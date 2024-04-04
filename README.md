@@ -24,15 +24,10 @@ If you skid this I will come after you
 - [ ] Add XMPP (maybe)
 - [ ] Add easy way to only allow your self build client dll to connect to the backend and add gameserver side check endpoint
 - [ ] Add automatic shop changing every day
-
-## Features
-
-- [x] Super fast and lightweight
-- [x] Robust account system
-- [x] Easy to use and set up
-- [x] Customizable
+- [ ] Easy to use and set up
+- [ ] Customizable
 - [x] Frequently updated
-- [x] New item shop every day **automatically**
+- [ ] New item shop every day **automatically**
 - [x] Fully featured matchmaker with queue
 
 ## Star History
