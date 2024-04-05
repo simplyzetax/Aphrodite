@@ -31,7 +31,7 @@ export type TempLoadouts = Record<string, {
         banner_icon_template: string;
         locker_name: string;
         banner_color_template: string;
-        item_seen: boolean;
+        items_seen: boolean;
         favorite: boolean;
     };
 }>;

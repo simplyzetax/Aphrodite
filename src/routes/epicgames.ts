@@ -33,25 +33,26 @@ app.get("/launcher/api/public/assets/Windows/:id/FortniteContentBuilds", (c) => 
     });
 });
 
+const chunkFile = await Bun.file(path.join(import.meta.dir, "../../static/Aphrodite.chunk")).arrayBuffer();
+const manifestFile = await Bun.file(path.join(import.meta.dir, "../../static/Aphrodite.manifest")).arrayBuffer();
 
-const handleFileRequest = async (c: Context, defaultFile: string) => {
+const handleFileRequest = (c: Context) => {
     const fileName = c.req.param("file");
-    let filePath = path.join(import.meta.dir, "../../static/", defaultFile);
 
-    if (fileName.includes("..")) return c.sendError(Aphrodite.cloudstorage.fileNotFound);
-    if (fileName.includes(".ini")) filePath = path.join(import.meta.dir, "../../static/", "noclue.ini");
-
-    try {
-        const fileContent = await Bun.file(filePath).arrayBuffer();
-        c.res.headers.append("Content-Type", "application/octet-stream");
-        return new Response(fileContent, { status: 200 });
-    } catch (err) {
-        return c.sendError(Aphrodite.cloudstorage.fileNotFound);
+    switch (fileName) {
+        case "Aphrodite.manifest":
+            c.res.headers.append("Content-Type", "application/json");
+            return new Response(manifestFile, { status: 200 });
+        case "Aphrodite.chunk":
+            c.res.headers.append("Content-Type", "application/octet-stream");
+            return new Response(chunkFile, { status: 200 });
+        default:
+            return c.sendError(Aphrodite.cloudstorage.fileNotFound);
     }
 };
 
-app.get("/Builds/Fortnite/Content/CloudDir/Aphrodite/:file", (c) => handleFileRequest(c, "Aphrodite.manifest"));
-app.get("/Builds/Fortnite/Content/CloudDir/ChunksV4/06/:file", (c) => handleFileRequest(c, "Aphrodite.chunk"));
+app.get("/Builds/Fortnite/Content/CloudDir/Aphrodite/:file", (c) => handleFileRequest(c));
+app.get("/Builds/Fortnite/Content/CloudDir/ChunksV4/06/:file", (c) => handleFileRequest(c));
 
 app.get("/launcher/api/public/distributionpoints", (c) => {
     return c.json({

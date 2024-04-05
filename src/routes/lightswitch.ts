@@ -1,6 +1,19 @@
 import app from "..";
+import { getACIDFromJWT, verifyClientToken } from "../utils/auth";
+import { Aphrodite } from "../utils/error";
 
 app.get("/lightswitch/api/service/Fortnite/status", (c) => {
+
+    const Authorization = c.req.header("Authorization");
+    if (!Authorization) {
+        return c.sendError(Aphrodite.authentication.invalidHeader);
+    }
+
+    const validClient = verifyClientToken(Authorization);
+    if (!validClient && !getACIDFromJWT(c)) {
+        return c.sendError(Aphrodite.authentication.invalidToken);
+    }
+
     return c.json({
         serviceInstanceId: "fortnite",
         status: "UP",
@@ -20,6 +33,17 @@ app.get("/lightswitch/api/service/Fortnite/status", (c) => {
 });
 
 app.get("/lightswitch/api/service/bulk/status", (c) => {
+
+    const Authorization = c.req.header("Authorization");
+    if (!Authorization) {
+        return c.sendError(Aphrodite.authentication.invalidHeader);
+    }
+
+    const validClient = verifyClientToken(Authorization);
+    if (!validClient && !getACIDFromJWT(c)) {
+        return c.sendError(Aphrodite.authentication.invalidToken);
+    }
+
     return c.json([{
         serviceInstanceId: "fortnite",
         status: "UP",
