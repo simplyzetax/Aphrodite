@@ -41,6 +41,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
 
     const itemToSlot = body.itemToSlot;
 
+    //Im adding emotes, wraps etc later
     profileChanges.push({
         changeType: "statModified",
         name: (`favorite_${slotName.toLowerCase()}`).toLowerCase(),

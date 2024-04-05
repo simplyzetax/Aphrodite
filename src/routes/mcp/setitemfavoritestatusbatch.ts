@@ -7,11 +7,11 @@ import { items } from "../../database/models/items";
 import { eq, sql } from "drizzle-orm";
 import { bumpRvnNumber } from "./queryprofile";
 
-const preparedMarkItemSeenQuery = db.update(items).set({
-    seen: true
+const preparedMarkItemFavorite = db.update(items).set({
+    favorite: true
 }).where(eq(items.id, sql.placeholder('itemId')));
 
-app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", async (c) => {
+app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteStatusBatch", async (c) => {
 
     const unsafeAccountId = c.req.param("unsafeAccountId");
 
@@ -41,19 +41,19 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
         const item = fullProfile.profile.items[body.itemIds[i]];
         if (!item) continue;
 
-        if ('item_seen' in item.attributes) {
-            item.attributes.item_seen = true;
+        if ('favorite' in item.attributes) {
+            item.attributes.favorite = true;
 
             profileChanges.push({
                 changeType: "itemAttrChanged",
                 itemId: body.itemIds[i],
-                attributeName: "item_seen",
-                attributeValue: true
+                attributeName: "favorite",
+                attributeValue: body.itemFavStatus[i]
             });
         }
 
         Promise.all([
-            preparedMarkItemSeenQuery.execute({ itemId: body.itemIds[i] }),
+            preparedMarkItemFavorite.execute({ itemId: body.itemIds[i] }),
         ])
     }
 
