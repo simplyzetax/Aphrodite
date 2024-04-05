@@ -1,4 +1,4 @@
-import app from "../..";
+import app, { db } from "../..";
 import { getACIDFromJWT, getAuthUser } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
@@ -40,7 +40,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
     if (!validSlots.includes(slotName)) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(`Invalid slot: ${body.slot}`));
 
     const itemToSlot = body.itemToSlot;
-    if (!fullProfile.profile.items[itemToSlot]) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("You do not own the item you are trying to equip"));
+    if (!fullProfile.profile.items[itemToSlot] && !itemToSlot.includes("_random")) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("You do not own the item you are trying to equip"));
 
     //Im adding emotes, wraps etc later
     profileChanges.push({
