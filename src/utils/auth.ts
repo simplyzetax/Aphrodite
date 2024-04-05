@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import { config, db } from "..";
 import { tokens } from "../database/models/tokens";
+import Logger from "./logging";
 
 function isJwtPayload(object: any): object is JwtPayload {
     return 'iat' in object && 'exp' in object && 'sub' in object;

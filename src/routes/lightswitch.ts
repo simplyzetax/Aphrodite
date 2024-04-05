@@ -9,8 +9,7 @@ app.get("/lightswitch/api/service/Fortnite/status", (c) => {
         return c.sendError(Aphrodite.authentication.invalidHeader);
     }
 
-    const validClient = verifyClientToken(Authorization);
-    if (!validClient && !getACIDFromJWT(c)) {
+    if (!verifyClientToken(Authorization) && !getACIDFromJWT(c)) {
         return c.sendError(Aphrodite.authentication.invalidToken);
     }
 
@@ -37,10 +36,9 @@ app.get("/lightswitch/api/service/bulk/status", (c) => {
     const Authorization = c.req.header("Authorization");
     if (!Authorization) {
         return c.sendError(Aphrodite.authentication.invalidHeader);
-    }
+    };
 
-    const validClient = verifyClientToken(Authorization);
-    if (!validClient && !getACIDFromJWT(c)) {
+    if (!verifyClientToken(Authorization) && !getACIDFromJWT(c)) {
         return c.sendError(Aphrodite.authentication.invalidToken);
     }
 

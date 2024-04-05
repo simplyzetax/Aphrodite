@@ -15,8 +15,7 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
         return c.sendError(Aphrodite.authentication.invalidHeader);
     }
 
-    const validClient = verifyClientToken(Authorization);
-    if (!validClient && !getACIDFromJWT(c)) {
+    if (!verifyClientToken(Authorization) && !getACIDFromJWT(c)) {
         return c.sendError(Aphrodite.authentication.invalidToken);
     }
 
@@ -57,8 +56,7 @@ app.get("/fortnite/api/cloudstorage/system/:file", async (c) => {
         return c.sendError(Aphrodite.authentication.invalidHeader);
     }
 
-    const validClient = verifyClientToken(Authorization);
-    if (!validClient && !getACIDFromJWT(c)) {
+    if (!verifyClientToken(Authorization) && !getACIDFromJWT(c)) {
         return c.sendError(Aphrodite.authentication.invalidToken);
     }
 

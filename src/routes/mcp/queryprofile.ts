@@ -15,6 +15,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const unsafeAccountId = c.req.param("accountId");
 
     const accountId = getACIDFromJWT(c);
+    if (!accountId) return c.sendError(Aphrodite.authentication.invalidToken);
 
     if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
 
