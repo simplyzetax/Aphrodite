@@ -55,7 +55,9 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
         await preparedMarkItemSeenQuery.execute({ itemId: body.itemIds[i] });
     }
 
-    await bumpRvnNumber.execute({ accountId, type: requestedProfileId });
+    Promise.all([
+        bumpRvnNumber.execute({ accountId, type: "athena" }),
+    ])
 
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,

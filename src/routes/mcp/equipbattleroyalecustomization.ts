@@ -4,6 +4,7 @@ import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
 import { bumpRvnNumber } from "./queryprofile";
+import Timing from "../../utils/timing";
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization', async (c) => {
 

@@ -29,7 +29,9 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
-    await bumpRvnNumber.execute({ accountId, type: requestedProfileId });
+    Promise.all([
+        bumpRvnNumber.execute({ accountId, type: "athena" }),
+    ])
 
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,
