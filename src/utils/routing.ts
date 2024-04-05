@@ -30,7 +30,6 @@ export async function loadRoutes(dir: string, isInitialCall = true): Promise<voi
 
     if (isInitialCall) {
         Logger.startup(`Loaded ${count} route${count === 1 ? '' : 's'}`);
-        await import("../routes/mcp/catchall");
         Logger.startup('Loaded catchall route')
     }
 }

@@ -1,9 +1,14 @@
-import app from "../..";
-import { getACIDFromJWT, getAuthUser } from "../../utils/auth";
+import app, { db } from "../..";
+import { getACIDFromJWT } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
-import Timing from "../../utils/timing";
+import { and, eq, sql } from "drizzle-orm";
+import { profiles } from "../../database/models/profiles";
+
+export const bumpRvnNumber = db.update(profiles).set({
+    revision: sql`${profiles.revision} + 1`
+}).where(and(eq(profiles.accountId, sql.placeholder('accountId')), eq(profiles.type, sql.placeholder('type'))));
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (c) => {
 
@@ -24,17 +29,19 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
     const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
+    await bumpRvnNumber.execute({ accountId, type: requestedProfileId });
+
     return c.json({
-        profileRevision: fullProfile.profile.rvn || 0,
+        profileRevision: fullProfile.profile.rvn + 1,
         profileId: fullProfile.profile.profileId,
-        profileChangesBaseRevision: 0,
+        profileChangesBaseRevision: fullProfile.profile.rvn,
         profileChanges: [
             {
                 changeType: "fullProfileUpdate",
                 profile: fullProfile.profile,
             }
         ],
-        profileCommandRevision: 0,
+        profileCommandRevision: fullProfile.profile.rvn + 1,
         serverTime: new Date().toISOString(),
         multiUpdate: [],
         responseVersion: 1,

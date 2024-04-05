@@ -34,9 +34,19 @@ class Contentpages {
                 contentpages.dynamicbackgrounds.backgrounds.backgrounds[0].stage = `season${mem.season}`;
                 contentpages.dynamicbackgrounds.backgrounds.backgrounds[1].stage = `season${mem.season}`;
 
-                if (mem.build === 11.31) {
-                    contentpages.dynamicbackgrounds.backgrounds.backgrounds[0].stage = "Winter19";
-                    contentpages.dynamicbackgrounds.backgrounds.backgrounds[1].stage = "Winter19";
+                type BuildToStageMap = {
+                    [key: string]: string;
+                };
+
+                const buildToStageMap: BuildToStageMap = {
+                    "11.31": "Winter19",
+                    "10.40": "SeasonX",
+                };
+
+                const stage = buildToStageMap[mem.build];
+                if (stage) {
+                    contentpages.dynamicbackgrounds.backgrounds.backgrounds[0].stage = stage;
+                    contentpages.dynamicbackgrounds.backgrounds.backgrounds[1].stage = stage;
                 }
             }
 

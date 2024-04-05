@@ -1,13 +1,13 @@
-import app from "../..";
-import { getACIDFromJWT, getAuthUser } from "../../utils/auth";
+import app, { db } from "../..";
+import { getACIDFromJWT } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
+import { and, eq, sql } from "drizzle-orm";
 import { bumpRvnNumber } from "./queryprofile";
 
-app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization', async (c) => {
-
-    console.log("EquipBattleRoyaleCustomization");
+// TODO: MAKE PROPER
+app.post('/fortnite/api/game/v2/profile/:accountId/client/SetMtxPlatform', async (c) => {
 
     const unsafeAccountId = c.req.param("accountId");
 
@@ -26,35 +26,18 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
     const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
-    const profileChanges = [];
-
-    let body;
-    try {
-        body = await c.req.json();
-    } catch (e) {
-        return c.sendError(Aphrodite.mcp.invalidPayload);
-    }
-
-    const slotName = body.slotName;
-
-    const validSlots = ["Character", "Backpack", "Pickaxe", "Glider", "SkyDiveContrail", "MusicPack", "LoadingScreen"];
-    if (!validSlots.includes(slotName)) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(`Invalid slot: ${body.slot}`));
-
-    const itemToSlot = body.itemToSlot;
-
-    profileChanges.push({
-        changeType: "statModified",
-        name: (`favorite_${slotName.toLowerCase()}`).toLowerCase(),
-        value: itemToSlot
-    });
-
-    await bumpRvnNumber.execute({ accountId, type: "athena" });
+    await bumpRvnNumber.execute({ accountId, type: requestedProfileId });
 
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,
         profileId: fullProfile.profile.profileId,
         profileChangesBaseRevision: fullProfile.profile.rvn,
-        profileChanges: profileChanges,
+        profileChanges: [
+            {
+                changeType: "fullProfileUpdate",
+                profile: fullProfile.profile,
+            }
+        ],
         profileCommandRevision: fullProfile.profile.rvn + 1,
         serverTime: new Date().toISOString(),
         multiUpdate: [],
