@@ -14,7 +14,6 @@ const preparedMarkItemFavorite = db.update(items).set({
 app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteStatusBatch", async (c) => {
 
     const unsafeAccountId = c.req.param("unsafeAccountId");
-
     const accountId = getACIDFromJWT(c);
 
     if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
@@ -37,6 +36,7 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteS
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
     const profileChanges = [];
+    const itemFavoritePromises = [];
     for (const i in body.itemIds) {
         const item = fullProfile.profile.items[body.itemIds[i]];
         if (!item) continue;
@@ -50,16 +50,15 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteS
                 attributeName: "favorite",
                 attributeValue: body.itemFavStatus[i]
             });
-        }
 
-        Promise.all([
-            preparedMarkItemFavorite.execute({ itemId: body.itemIds[i] }),
-        ])
+            itemFavoritePromises.push(preparedMarkItemFavorite.execute({ itemId: body.itemIds[i] }));
+        }
     }
 
     Promise.all([
         bumpRvnNumber.execute({ accountId, type: "athena" }),
-    ])
+        ...itemFavoritePromises,
+    ]);
 
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,

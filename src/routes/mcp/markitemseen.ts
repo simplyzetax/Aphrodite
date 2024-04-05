@@ -37,6 +37,7 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
 
     const profileChanges = [];
+    const itemSeenPromises = [];
     for (const i in body.itemIds) {
         const item = fullProfile.profile.items[body.itemIds[i]];
         if (!item) continue;
@@ -50,15 +51,14 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
                 attributeName: "item_seen",
                 attributeValue: true
             });
-        }
 
-        Promise.all([
-            preparedMarkItemSeenQuery.execute({ itemId: body.itemIds[i] }),
-        ])
+            itemSeenPromises.push(preparedMarkItemSeenQuery.execute({ itemId: body.itemIds[i] }));
+        }
     }
 
     Promise.all([
         bumpRvnNumber.execute({ accountId, type: "athena" }),
+        ...itemSeenPromises
     ])
 
     return c.json({

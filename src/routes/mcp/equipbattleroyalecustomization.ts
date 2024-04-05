@@ -20,13 +20,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
     const ua = UAParser.parse(c.req.header("User-Agent"));
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
-    const ph = new ProfileHelper(requestedProfileId, ua.build);
-
-    const fullProfile = await ph.getProfile(accountId);
-    if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
-
-    const profileChanges = [];
-
     let body;
     try {
         body = await c.req.json();
@@ -34,12 +27,20 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
         return c.sendError(Aphrodite.mcp.invalidPayload);
     }
 
+    const ph = new ProfileHelper(requestedProfileId, ua.build);
+
+    const fullProfile = await ph.getProfile(accountId);
+    if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
+
+    const profileChanges = [];
+
     const slotName = body.slotName;
 
     const validSlots = ["Character", "Backpack", "Pickaxe", "Glider", "SkyDiveContrail", "MusicPack", "LoadingScreen"];
     if (!validSlots.includes(slotName)) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(`Invalid slot: ${body.slot}`));
 
     const itemToSlot = body.itemToSlot;
+    if (!fullProfile.profile.items[itemToSlot]) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("You do not own the item you are trying to equip"));
 
     //Im adding emotes, wraps etc later
     profileChanges.push({

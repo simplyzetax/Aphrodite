@@ -1,10 +1,6 @@
 import app, { db } from "../..";
-import { getACIDFromJWT } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
 import { ProfileHelper } from "../../utils/builders/profile";
-import UAParser from "../../utils/version";
-import { and, eq, sql } from "drizzle-orm";
-import { profiles } from "../../database/models/profiles";
 import { bumpRvnNumber } from "./queryprofile";
 
 //TODO: Add rate limiting to prevent abuse
