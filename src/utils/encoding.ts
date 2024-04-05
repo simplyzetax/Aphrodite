@@ -1,3 +1,5 @@
+import type { Context } from "hono";
+
 class Encoding {
     public static encodeBase64(input: string): string {
         return btoa(input);
@@ -17,6 +19,14 @@ class Encoding {
 
     public static isValidBase64(input: string): boolean {
         return /^[A-Za-z0-9+/]*={0,2}$/.test(input);
+    }
+
+    public static async getJSONBody(c: Context): Promise<any | undefined> {
+        try {
+            return await c.req.json();
+        } catch (e) {
+            return undefined;
+        }
     }
 }
 

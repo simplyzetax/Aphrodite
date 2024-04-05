@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { jsonb, pgTable, text, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, text, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 import { profiles } from "./profiles";
 
 export const loadouts = pgTable(
@@ -21,10 +21,11 @@ export const loadouts = pgTable(
         loadingScreenId: text("loading_screen_id").notNull(),
         musicPackId: text("music_pack_id").notNull(),
     },
-    (Exchanges) => {
+    (loadouts) => {
         return {
-            idIndex: uniqueIndex("accountId_idx").on(Exchanges.id),
-            lockerNameIndex: uniqueIndex("lockerName_idx").on(Exchanges.lockerName),
+            idIndex: uniqueIndex("accountId_idx").on(loadouts.id),
+            lockerNameIndex: index("lockerName_idx").on(loadouts.lockerName),
+            profileIdIndex: index("profileId_idx").on(loadouts.profileId),
         };
     },
 );

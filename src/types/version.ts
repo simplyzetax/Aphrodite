@@ -1,6 +1,6 @@
 export interface IVersion {
     season: number;
-    build: number;
+    build: string;
     cl: string;
     lobby: string;
 }

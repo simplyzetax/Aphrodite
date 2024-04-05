@@ -3,6 +3,10 @@ import type { Context } from "hono";
 
 import Logger from "./logging";
 import UAParser from "./version";
+import { config } from "..";
+import path from 'node:path';
+
+const splash = await Bun.file(path.join(import.meta.dir, "../../static/", "splash.txt")).text();
 
 class Contentpages {
 
@@ -43,11 +47,27 @@ class Contentpages {
                     "10.40": "SeasonX",
                 };
 
+
                 const stage = buildToStageMap[mem.build];
                 if (stage) {
                     contentpages.dynamicbackgrounds.backgrounds.backgrounds[0].stage = stage;
                     contentpages.dynamicbackgrounds.backgrounds.backgrounds[1].stage = stage;
                 }
+            }
+
+            if (Array.isArray(contentpages.emergencynotice.news.messages)) {
+                contentpages.emergencynotice.news.messages = [];
+
+                const splashLines = splash.split("\n");
+                const randomSplash = splashLines[Math.floor(Math.random() * splashLines.length)];
+
+                contentpages.emergencynotice.news.messages.push({
+                    hidden: false,
+                    _type: "CommonUI Simple Message Base",
+                    title: `Aphrodite - ${mem.build}.${config.UPLINK_KEY.substring(0, 6)}`,
+                    body: randomSplash,
+                    spotlight: true
+                });
             }
 
             return contentpages;

@@ -6,7 +6,13 @@ import { eq, sql } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import { config, db } from "..";
 import { tokens } from "../database/models/tokens";
-import Logger from "./logging";
+
+type ToBeLoggedOut = {
+    accountId: string;
+    token: string;
+}
+
+export const toBeLoggedOut: ToBeLoggedOut[] = [];
 
 function isJwtPayload(object: any): object is JwtPayload {
     return 'iat' in object && 'exp' in object && 'sub' in object;
@@ -56,6 +62,8 @@ export async function getAuthUser(c: Context): Promise<User | undefined> {
 
     if (!decodedToken.sub) return undefined;
 
+    if (toBeLoggedOut.find((t) => t.token === token)) return undefined;
+
     const [validUser] = await preparedGetUser.execute({ accountId: decodedToken.sub });
     if (!validUser) return undefined;
 
@@ -81,6 +89,8 @@ export function getACIDFromJWT(c: Context): string | undefined {
             throw new Error('Invalid token');
         }
 
+        if (toBeLoggedOut.find((t) => t.token === token)) return undefined;
+
         const decodedToken: JwtPayload = decoded;
         return decodedToken.sub;
     } catch (e) {
@@ -94,7 +104,11 @@ export function getTokenFromContext(c: Context): string | undefined {
         return undefined;
     }
 
-    return auth.replace(/Bearer eg1~/i, "");
+    const token = auth.replace(/Bearer eg1~/i, "");
+
+    if (toBeLoggedOut.find((t) => t.token === token)) return undefined;
+
+    return token;
 }
 
 // Shamelessy stolen from Lawin (Love him)

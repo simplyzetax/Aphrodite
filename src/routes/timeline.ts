@@ -8,30 +8,28 @@ const forever = "9999-01-01T00:00:00.000Z";
 function createActiveEvents(mem: IVersion): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
     const now = new Date().toISOString();
 
+    const eventsMap = new Map<number, Array<{ eventType: string, activeUntil: string, activeSince: string }>>([
+        [3, [{ eventType: "EventFlag.Spring2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }]],
+        [4, [
+            { eventType: "EventFlag.Blockbuster2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.Blockbuster2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        ]],
+        [11, [
+            { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTE_WinterFest2019", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        ]]
+    ]);
+
     const events = [
         { eventType: `EventFlag.Season${mem.season}`, activeUntil: now, activeSince: now },
         { eventType: `EventFlag.${mem.lobby}`, activeUntil: now, activeSince: now },
     ];
 
-    if (mem.season >= 3) {
-        events.push(
-            { eventType: "EventFlag.Spring2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
-        );
-    }
-
-    if (mem.season >= 4) {
-        events.push(
-            { eventType: "EventFlag.Blockbuster2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
-            { eventType: "EventFlag.Blockbuster2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
-        );
-    }
-
-    if (mem.season >= 11) {
-        events.push(
-            { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
-            { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
-            { eventType: "EventFlag.LTE_WinterFest2019", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
-        );
+    for (const [season, seasonEvents] of eventsMap) {
+        if (mem.season >= season) {
+            events.push(...seasonEvents);
+        }
     }
 
     return events;

@@ -8,7 +8,7 @@ class UAParser {
 
         const memory: IVersion = {
             season: 0,
-            build: 0.0,
+            build: "0.0",
             cl: '0',
             lobby: 'LobbySeason0'
         };
@@ -25,7 +25,7 @@ class UAParser {
         if (officialMatch) {
             const build = officialMatch[7];
             memory.season = Number(build.split('.')[0]);
-            memory.build = Number(build);
+            memory.build = Number.parseFloat(build).toFixed(2);
             memory.lobby = `LobbySeason${memory.season}`;
         }
 
@@ -33,16 +33,17 @@ class UAParser {
             memory.cl = buildIDMatch[1];
         }
 
+
         if (buildMatch) {
             const build = buildMatch[1];
             memory.season = Number(build.split('.')[0]);
-            memory.build = Number(build);
+            memory.build = Number.parseFloat(build).toFixed(2);
             memory.lobby = `LobbySeason${memory.season}`;
         }
 
         if (Number.isNaN(memory.season)) {
             memory.season = UAParser.getSeasonFromCL(memory.cl);
-            memory.build = memory.season;
+            memory.build = `${memory.season}`;
             memory.lobby = `LobbySeason${memory.season}`;
         }
 
@@ -60,7 +61,7 @@ class UAParser {
         return 2;
     }
 
-    public static isAllowedBuild(build: number) {
+    public static isAllowedBuild(build: string) {
         if (config.ALLOWED_SEASONS.includes(build)) return true;
         return false;
     }

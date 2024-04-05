@@ -91,6 +91,10 @@ class TokenManager {
         await db.delete(tokens).where(eq(tokens.accountId, this.user.accountId));
     }
 
+    public static async resetAllTokensForAccountID(accountId: string): Promise<void> {
+        await db.delete(tokens).where(eq(tokens.accountId, accountId));
+    }
+
 }
 
 export default TokenManager;

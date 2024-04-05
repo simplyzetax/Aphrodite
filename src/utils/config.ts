@@ -18,7 +18,7 @@ class Config {
         }
 
         const config = unsafeConfig.data;
-        const allowedSeasons = config.ALLOWED_SEASONS.split(',').map(Number);
+        const allowedSeasons = config.ALLOWED_SEASONS.split(',').map(String);
         const uplinkKey = Hashing.sha256(config.BOT_TOKEN);
 
         return new LoadedConfig(
@@ -35,7 +35,7 @@ class LoadedConfig {
     constructor(
         public DATABASE_URL: string,
         public PORT: string,
-        public ALLOWED_SEASONS: number[],
+        public ALLOWED_SEASONS: string[],
         public BOT_TOKEN: string,
         public UPLINK_KEY: string
     ) { }

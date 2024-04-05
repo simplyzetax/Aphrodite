@@ -11,6 +11,7 @@ export const profiles = pgTable('profiles', {
     return {
         accountIdProfileIndex: index('profile_accountId_idx').on(profiles.accountId),
         profileIdIndex: uniqueIndex('profile_id_idx').on(profiles.id),
+        typeIndex: index('profile_type_idx').on(profiles.type),
     }
 });
 

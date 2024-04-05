@@ -15,9 +15,11 @@ export const items = pgTable('items', {
     quantity: integer('quantity').notNull().default(1),
     favorite: boolean('favorite').default(false),
     seen: boolean('has_seen').default(false),
-}, (users) => {
+}, (items) => {
     return {
-        idIndex: uniqueIndex('id_idx').on(users.id),
+        profileIdIndex: index('item_profile_id_idx').on(items.profileId),
+        templateIdIndex: index('item_template_id_idx').on(items.templateId),
+        idIndex: uniqueIndex('item_id_idx').on(items.id),
     }
 });
 

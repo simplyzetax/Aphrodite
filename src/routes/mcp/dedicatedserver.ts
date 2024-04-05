@@ -11,7 +11,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/dedicated_server/:operation',
     const requestedProfileId = c.req.query("profileId");
     if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
 
-    const ph = new ProfileHelper(requestedProfileId, 1);
+    const ph = new ProfileHelper(requestedProfileId, "1");
 
     const fullProfile = await ph.getProfile(unsafeAccountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);

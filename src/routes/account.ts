@@ -39,6 +39,18 @@ app.get("/account/api/public/account/*/externalAuths", (c) => {
     return c.json([]); //Too lazy to implement this, maybe later
 });
 
+app.get("/account/api/public/account/displayName/:displayName", async (c) => {
+    const displayName = c.req.param("displayName");
+    const [user] = await db.select().from(users).where(eq(users.displayName, displayName));
+    if (!user) return c.sendError(Aphrodite.account.accountNotFound.variable([displayName]));
+
+    return c.json({
+        id: user.accountId,
+        displayName: user.displayName,
+        externalAuths: {}
+    });
+});
+
 app.get("/account/api/public/account", async (c) => {
     const response = [];
 
