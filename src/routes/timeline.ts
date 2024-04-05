@@ -4,15 +4,36 @@ import UAParser from "../utils/version";
 
 const forever = "9999-01-01T00:00:00.000Z";
 
-function createActiveEvents(season: number, lobby: string): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
+function createActiveEvents(season: number, mem: any): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
     const now = new Date().toISOString();
-    return [
+    
+    const events = [
         { eventType: `EventFlag.Season${season}`, activeUntil: now, activeSince: now },
-        { eventType: `EventFlag.${lobby}`, activeUntil: now, activeSince: now },
-        { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
-        { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
-        { eventType: "EventFlag.LTE_WinterFest2019", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        { eventType: `EventFlag.${mem.lobby}`, activeUntil: now, activeSince: now },
     ];
+
+    if (mem.season >= 3) {
+        events.push(
+            { eventType: "EventFlag.Spring2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        );
+    }
+
+    if (mem.season >= 4) {
+        events.push(
+            { eventType: "EventFlag.Blockbuster2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.Blockbuster2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        );
+    }
+
+    if (mem.season >= 11) {
+        events.push(
+            { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTE_WinterFest2019", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        );
+    }
+
+    return events;
 }
 
 function getIsoDateOneMinuteBeforeMidnight(): string {
