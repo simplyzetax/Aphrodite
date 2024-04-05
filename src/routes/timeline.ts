@@ -1,14 +1,15 @@
 import app from "..";
+import type { IVersion } from "../types/version";
 import { Aphrodite } from "../utils/error";
 import UAParser from "../utils/version";
 
 const forever = "9999-01-01T00:00:00.000Z";
 
-function createActiveEvents(season: number, mem: any): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
+function createActiveEvents(mem: IVersion): Array<{ eventType: string, activeUntil: string, activeSince: string }> {
     const now = new Date().toISOString();
-    
+
     const events = [
-        { eventType: `EventFlag.Season${season}`, activeUntil: now, activeSince: now },
+        { eventType: `EventFlag.Season${mem.season}`, activeUntil: now, activeSince: now },
         { eventType: `EventFlag.${mem.lobby}`, activeUntil: now, activeSince: now },
     ];
 
@@ -47,7 +48,7 @@ app.get("/fortnite/api/calendar/v1/timeline", (c) => {
     const mem = UAParser.parse(c.req.header("User-Agent"));
     if (!mem || typeof mem.season !== 'number') return c.sendError(Aphrodite.internal.invalidUserAgent)
 
-    const activeEvents = createActiveEvents(mem.season, mem.lobby);
+    const activeEvents = createActiveEvents(mem);
     const isoDate = getIsoDateOneMinuteBeforeMidnight();
     const todayAtMidnight = new Date();
     todayAtMidnight.setHours(24, 0, 0, 0);
