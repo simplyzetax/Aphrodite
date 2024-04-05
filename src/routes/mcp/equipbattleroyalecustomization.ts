@@ -7,8 +7,6 @@ import { bumpRvnNumber } from "./queryprofile";
 
 app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCustomization', async (c) => {
 
-    console.log("EquipBattleRoyaleCustomization");
-
     const unsafeAccountId = c.req.param("accountId");
 
     const accountId = getACIDFromJWT(c);
@@ -48,7 +46,9 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
         value: itemToSlot
     });
 
-    await bumpRvnNumber.execute({ accountId, type: "athena" });
+    Promise.all([
+        bumpRvnNumber.execute({ accountId, type: "athena" }),
+    ])
 
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,
