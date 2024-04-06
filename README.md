@@ -1,4 +1,5 @@
-![Banner](https://i.imgur.com/OeiOQH8.png)
+![Banner](https://github.com/simplyzetax/Aphrodite/assets/38991189/e81f199d-24bd-47c0-a181-070aa03d43e1)
+
 
 [![pnpm](https://img.shields.io/badge/maintained%20with-bun-ac98ff.svg?style=for-the-badge&logo=bun)](https://bun.sh/) 
 ![Size](https://img.shields.io/github/repo-size/simplyzetax/Aphrodite?label=Size&style=for-the-badge)
