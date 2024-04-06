@@ -14,6 +14,18 @@ function createActiveEvents(mem: IVersion): Array<{ eventType: string, activeUnt
             { eventType: "EventFlag.Blockbuster2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
             { eventType: "EventFlag.Blockbuster2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
         ]],
+        [4, [
+            { eventType: "EventFlag.Blockbuster2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.Blockbuster2018Phase1", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        ]],
+        [5, [
+            { eventType: "EventFlag.RoadTrip2018", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTM_Heist", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        ]],
+        [6, [
+            { eventType: "EventFlag.LTM_Fortnitemares", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
+            { eventType: "EventFlag.LTM_LilKevin", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" }
+        ]],
         [11, [
             { eventType: "EventFlag.Winterfest.Tree", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
             { eventType: "EventFlag.LTE_WinterFest", activeUntil: forever, activeSince: "2020-01-01T00:00:00.000Z" },
