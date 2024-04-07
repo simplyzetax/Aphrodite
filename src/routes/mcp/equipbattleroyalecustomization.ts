@@ -157,6 +157,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
     } else {
         Promise.all([
             bumpRvnNumber.execute({ accountId, type: "athena" }),
+            db.delete(attributes).where(and(eq(attributes.profileId, fetchedProfile.id), eq(attributes.key, `favorite_${slotName.toLowerCase()}`))),
             db.insert(attributes).values({
                 profileId: fetchedProfile.id,
                 key: `favorite_${slotName.toLowerCase()}`,
