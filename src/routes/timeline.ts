@@ -34,8 +34,8 @@ function createActiveEvents(mem: IVersion): Array<{ eventType: string, activeUnt
     ]);
 
     const events = [
-        { eventType: `EventFlag.Season${mem.season}`, activeUntil: now, activeSince: now },
-        { eventType: `EventFlag.${mem.lobby}`, activeUntil: now, activeSince: now },
+        { eventType: `EventFlag.Season${mem.season}`, activeUntil: forever, activeSince: now },
+        { eventType: `EventFlag.${mem.lobby}`, activeUntil: forever, activeSince: now },
     ];
 
     for (const [season, seasonEvents] of eventsMap) {

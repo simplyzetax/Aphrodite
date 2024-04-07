@@ -193,7 +193,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
         profileChanges: profileChanges,
         profileCommandRevision: fetchedProfile.revision + 1,
         serverTime: new Date().toISOString(),
-        multiUpdate: [],
         responseVersion: 1,
     });
 });
