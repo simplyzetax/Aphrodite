@@ -89,10 +89,7 @@ app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/:accountId", asy
 
     buildUniqueId[user.accountId] = buildUniqueIdPart;
 
-    const playerCustomKey = qs.parse(c.req.queries.toString(), {
-        ignoreQueryPrefix: true,
-    })["player.option.customKey"] || undefined;
-
+    const playerCustomKey = c.req.query("player.option.customKey")
     const memory = UAParser.parse(c.req.header("User-Agent"));
     if (!memory) {
         return c.sendError(Aphrodite.internal.invalidUserAgent);
