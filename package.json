@@ -2,7 +2,7 @@
   "name": "aphrodite",
   "module": "src/index.ts",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
     "@biomejs/biome": "1.6.4",
     "@types/bun": "^1.0.8",
