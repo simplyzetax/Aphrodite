@@ -62,16 +62,26 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
 
         let valueJSON: string[] | string = attribute ? attribute.valueJSON as string[] : [];
 
-        if (indexWithinSlot === 0) valueJSON = itemToSlot;
-
         if (["ItemWrap", "Dance"].includes(slotName)) {
-            valueJSON = Array.isArray(valueJSON) ? valueJSON : [];
-            valueJSON[indexWithinSlot] = itemToSlot;
+            if (!Array.isArray(valueJSON)) {
+                valueJSON = [];
+            }
+            if (indexWithinSlot === -1 && itemToSlot !== "") {
+                const length = slotName === "ItemWrap" ? 7 : 6;
+                valueJSON = new Array(length).fill(itemToSlot);
+            } else {
+                if (valueJSON.length <= indexWithinSlot) {
+                    valueJSON = valueJSON.concat(new Array(indexWithinSlot - valueJSON.length + 1).fill(""));
+                }
+                valueJSON[indexWithinSlot] = itemToSlot;
+            }
+        } else if (indexWithinSlot === 0) {
+            valueJSON = itemToSlot;
         }
 
         const profileChanges = [{
             changeType: "statModified",
-            name: `favorite_${slotName.toLowerCase()}`,
+            name: slotName.toLowerCase() === "itemwrap" ? "favorite_itemwraps" : "favorite_dance",
             value: valueJSON
         }];
 
@@ -93,7 +103,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
             profileChanges: profileChanges,
             profileCommandRevision: profile.revision + 1,
             serverTime: new Date().toISOString(),
-            multiUpdate: [],
             responseVersion: 1,
         });
     }
@@ -118,7 +127,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
             if (!Array.isArray(valueJSON)) {
                 valueJSON = [];
             }
-            if (indexWithinSlot === -1) {
+            if (indexWithinSlot === -1 && itemToSlot !== "") {
                 const length = slotName === "ItemWrap" ? 7 : 6;
                 valueJSON = new Array(length).fill(itemToSlot);
             } else {
