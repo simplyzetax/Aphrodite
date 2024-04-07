@@ -89,6 +89,8 @@ app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/:accountId", asy
 
     buildUniqueId[user.accountId] = buildUniqueIdPart;
 
+    const partyPlayerIds = c.req.query("partyPlayerIds");
+
     const playerCustomKey = c.req.query("player.option.customKey")
     const memory = UAParser.parse(c.req.header("User-Agent"));
     if (!memory) {
@@ -117,12 +119,12 @@ app.get("/fortnite/api/game/v2/matchmakingservice/ticket/player/:accountId", asy
 
     const payload = {
         playerId: user.accountId,
-        partyPlayerIds: "partyMembers", //Replace with partyMembers variable
+        partyPlayerIds: partyPlayerIds, //Replace with partyMembers variable
         bucketId: bucketId,
         attributes: {
             "player.subregions": region,
             "player.season": memory.season,
-            "player.option.partyId": "partyId", //Replace with partyId variable
+            "player.option.partyId": "partyId", //Replace with partyId variable, TODO
             "player.userAgent": memory.cl,
             "player.platform": "Windows",
             "player.option.linkType": "DEFAULT",

@@ -123,13 +123,6 @@ app.post("/account/api/oauth/token", async (c) => {
     const accessToken = await tm.newAccessToken(clientId, body.grant_type);
     const refreshToken = await tm.newRefreshToken(clientId);
 
-    await setSignedCookie(c, "cs_access_token", `eg1~${accessToken}`, config.UPLINK_KEY, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
-        expires: new Date(Date.now() + 20000)
-    });
-
     return c.json({
         access_token: `eg1~${accessToken}`,
         expires_in: 3600,

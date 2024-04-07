@@ -35,6 +35,7 @@ app.get("/launcher/api/public/assets/Windows/:id/FortniteContentBuilds", (c) => 
 
 const chunkFile = await Bun.file(path.join(import.meta.dir, "../../static/Aphrodite.chunk")).arrayBuffer();
 const manifestFile = await Bun.file(path.join(import.meta.dir, "../../static/Aphrodite.manifest")).arrayBuffer();
+const iniFile = await Bun.file(path.join(import.meta.dir, "../../static/Full.ini")).arrayBuffer();
 
 const handleFileRequest = (c: Context) => {
     const fileName = c.req.param("file");
@@ -46,13 +47,17 @@ const handleFileRequest = (c: Context) => {
         case "Aphrodite.chunk":
             c.res.headers.append("Content-Type", "application/octet-stream");
             return new Response(chunkFile, { status: 200 });
+        case "Full.ini":
+            c.res.headers.append("Content-Type", "application/octet-stream");
+            return new Response(iniFile, { status: 200 });
         default:
-            return c.sendError(Aphrodite.cloudstorage.fileNotFound);
+            return new Response(chunkFile, { status: 200 });
     }
 };
 
 app.get("/Builds/Fortnite/Content/CloudDir/Aphrodite/:file", (c) => handleFileRequest(c));
-app.get("/Builds/Fortnite/Content/CloudDir/ChunksV4/06/:file", (c) => handleFileRequest(c));
+app.get("/Builds/Fortnite/Content/CloudDir/:file", (c) => handleFileRequest(c));
+app.get("/Builds/Fortnite/Content/CloudDir/ChunksV4/:id/:file", (c) => handleFileRequest(c));
 
 app.get("/launcher/api/public/distributionpoints", (c) => {
     return c.json({
