@@ -1,59 +1,70 @@
 import app, { db } from "../..";
 import { getACIDFromJWT } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
-import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
 import { items } from "../../database/models/items";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { bumpRvnNumber } from "./queryprofile";
+import { profiles } from "../../database/models/profiles";
+import Encoding from "../../utils/encoding";
+import { z } from "zod";
 
 const preparedMarkItemSeenQuery = db.update(items).set({
     seen: true
 }).where(eq(items.id, sql.placeholder('itemId')));
 
+export const preparedJoinedQueryWithItems = db
+    .select()
+    .from(profiles)
+    .where(and(eq(profiles.type, sql.placeholder('type')), eq(profiles.accountId, sql.placeholder('accountId'))))
+    .leftJoin(items, and(eq(profiles.id, items.profileId), eq(items.id, sql.placeholder('itemToSlot'))))
+    .prepare("preparedJoinedQueryOther")
+
 app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", async (c) => {
 
-    const unsafeAccountId = c.req.param("unsafeAccountId");
-
+    const Authorization = c.req.header("Authorization");
     const accountId = getACIDFromJWT(c);
-    if (!accountId) return c.sendError(Aphrodite.authentication.invalidToken);
-
-    if (accountId !== unsafeAccountId) return c.sendError(Aphrodite.authentication.notYourAccount);
-
     const requestedProfileId = c.req.query("profileId");
-    if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
-
-    let body;
-    try {
-        body = await c.req.json();
-    } catch (e) {
-        return c.sendError(Aphrodite.mcp.invalidPayload);
-    }
-
     const ua = UAParser.parse(c.req.header("User-Agent"));
+
+    const body = await Encoding.getJSONBody(c);
+
+    if (!Authorization) return c.sendError(Aphrodite.authentication.invalidHeader);
+    if (!accountId || accountId !== c.req.param("unsafeAccountId")) return c.sendError(Aphrodite.authentication.notYourAccount);
+    if (!requestedProfileId) return c.sendError(Aphrodite.mcp.invalidPayload);
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
-    const ph = new ProfileHelper(requestedProfileId, ua.build);
-    const fullProfile = await ph.getProfile(accountId);
-    if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
+    const bodySchema = z.object({
+        itemIds: z.array(z.string())
+    });
+
+    const parsedBody = bodySchema.safeParse(body);
+    if (!parsedBody.success) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(parsedBody.error.errors.map((e) => e.message).join(", ")));
+
+    const { itemIds } = parsedBody.data;
+
+    const [fetchedProfile] = await db.select().from(profiles).where(and(eq(profiles.type, requestedProfileId), eq(profiles.accountId, accountId)));
+    if (!fetchedProfile) return c.sendError(Aphrodite.mcp.profileNotFound);
+
+    const fetchedItems = await db.select().from(items).where(eq(items.profileId, fetchedProfile.id));
+    if (!fetchedItems) return c.sendError(Aphrodite.mcp.profileNotFound);
 
     const profileChanges = [];
     const itemSeenPromises = [];
-    for (const i in body.itemIds) {
-        const item = fullProfile.profile.items[body.itemIds[i]];
+
+    for (const i in itemIds) {
+        const item = fetchedItems.find((item) => item.id === itemIds[i]);
         if (!item) continue;
 
-        if ('item_seen' in item.attributes) {
-            item.attributes.item_seen = true;
-
+        if ('item_seen' in (item.jsonAttributes as any)) {
             profileChanges.push({
                 changeType: "itemAttrChanged",
-                itemId: body.itemIds[i],
+                itemId: itemIds[i],
                 attributeName: "item_seen",
                 attributeValue: true
             });
 
-            itemSeenPromises.push(preparedMarkItemSeenQuery.execute({ itemId: body.itemIds[i] }));
+            itemSeenPromises.push(preparedMarkItemSeenQuery.execute({ itemId: itemIds[i] }));
         }
     }
 
@@ -63,11 +74,11 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
     ])
 
     return c.json({
-        profileRevision: fullProfile.profile.rvn + 1,
+        profileRevision: fetchedProfile.revision + 1,
         profileId: requestedProfileId,
-        profileChangesBaseRevision: fullProfile.profile.rvn,
+        profileChangesBaseRevision: fetchedProfile.revision,
         profileChanges: profileChanges,
-        profileCommandRevision: fullProfile.profile.commandRevision + 1,
+        profileCommandRevision: fetchedProfile.revision + 1,
         serverTime: new Date().toISOString(),
         responseVersion: 1
     });

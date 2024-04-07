@@ -1,10 +1,10 @@
 import app, { db } from "../..";
 import { getACIDFromJWT } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
-import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { bumpRvnNumber } from "./queryprofile";
+import { profiles } from "../../database/models/profiles";
 
 // TODO: MAKE PROPER
 app.post('/fortnite/api/game/v2/profile/:accountId/client/SetMtxPlatform', async (c) => {
@@ -22,29 +22,26 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/SetMtxPlatform', async
     const ua = UAParser.parse(c.req.header("User-Agent"));
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
-    const ph = new ProfileHelper(requestedProfileId, ua.build);
-
-    const fullProfile = await ph.getProfile(accountId);
-    if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
+    const [fetchedProfile] = await db.select().from(profiles).where(and(eq(profiles.type, requestedProfileId), eq(profiles.accountId, accountId)));
+    if (!fetchedProfile) return c.sendError(Aphrodite.mcp.profileNotFound);
 
     Promise.all([
         bumpRvnNumber.execute({ accountId, type: "athena" }),
     ])
 
     return c.json({
-        profileRevision: fullProfile.profile.rvn + 1,
-        profileId: fullProfile.profile.profileId,
-        profileChangesBaseRevision: fullProfile.profile.rvn,
+        profileRevision: fetchedProfile.revision + 1,
+        profileId: requestedProfileId,
+        profileChangesBaseRevision: fetchedProfile.revision,
         profileChanges: [
             {
                 changeType: "fullProfileUpdate",
-                profile: fullProfile.profile,
+                profile: {},
             }
         ],
-        profileCommandRevision: fullProfile.profile.rvn + 1,
+        profileCommandRevision: fetchedProfile.revision + 1,
         serverTime: new Date().toISOString(),
-        multiUpdate: [],
-        responseVersion: 1,
+        responseVersion: 1
     })
 
 });

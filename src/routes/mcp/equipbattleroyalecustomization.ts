@@ -1,7 +1,6 @@
 import app, { db } from "../..";
 import { getACIDFromJWT, getAuthUser, toBeLoggedOut } from "../../utils/auth";
 import { Aphrodite } from "../../utils/error";
-import { ProfileHelper } from "../../utils/builders/profile";
 import UAParser from "../../utils/version";
 import { bumpRvnNumber } from "./queryprofile";
 import { z } from "zod";
@@ -13,7 +12,7 @@ import Timing from "../../utils/timing";
 import { profiles } from "../../database/models/profiles";
 import { items } from "../../database/models/items";
 
-const preparedJoinedQueryWithItems = db
+export const preparedJoinedQueryWithItems = db
     .select()
     .from(profiles)
     .where(and(eq(profiles.type, sql.placeholder('type')), eq(profiles.accountId, sql.placeholder('accountId'))))
@@ -113,6 +112,18 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
     const fetchedItems = queryResult.map(({ items }) => items);
     const fetchedAttributes = queryResult.map(({ attributes }) => attributes);
 
+    const rvn = c.req.query("rvn");
+    if (!rvn && rvn !== "-1") return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing rvn"));
+    if (fetchedProfile.revision !== Number.parseInt(rvn)) {
+        /*
+        //Too annoying, might readd later
+        Promise.all([
+                TokenManager.resetAllTokensForAccountID(accountId),
+                toBeLoggedOut.push({ accountId, token: Authorization.replace(/Bearer eg1~/i, "") })
+            ]); */
+        return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(`Profile revision mismatch, client: ${rvn}, server: ${fetchedProfile.revision}`));
+    }
+
     const firstItem = fetchedItems[0];
 
     if (!firstItem && !itemToSlot.includes("_random") && itemToSlot !== "") {
@@ -140,10 +151,10 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
 
         Promise.all([
             bumpRvnNumber.execute({ accountId, type: "athena" }),
-            db.delete(attributes).where(and(eq(attributes.profileId, fetchedProfile.id), eq(attributes.key, `favorite_${slotName.toLowerCase()}`))),
+            db.delete(attributes).where(and(eq(attributes.profileId, fetchedProfile.id), eq(attributes.key, slotName.toLowerCase() === "itemwrap" ? "favorite_itemwraps" : `favorite_${slotName.toLowerCase()}`))),
             db.insert(attributes).values({
                 profileId: fetchedProfile.id,
-                key: `favorite_${slotName.toLowerCase()}`,
+                key: slotName.toLowerCase() === "itemwrap" ? "favorite_itemwraps" : `favorite_${slotName.toLowerCase()}`,
                 type: requestedProfileId,
                 valueJSON: valueJSON
             })
@@ -151,7 +162,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
 
         profileChanges = [{
             changeType: "statModified",
-            name: slotName.toLowerCase() === "itemwrap" ? "favorite_itemwraps" : "favorite_dance",
+            name: slotName.toLowerCase() === "itemwrap" ? "favorite_itemwraps" : `favorite_${slotName.toLowerCase()}`,
             value: valueJSON
         }];
     } else {
@@ -171,16 +182,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
             name: `favorite_${slotName.toLowerCase()}`,
             value: itemToSlot
         }];
-    }
-
-    const rvn = c.req.query("rvn");
-    if (!rvn && rvn !== "-1") return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing rvn"));
-    if (fetchedProfile.revision !== Number.parseInt(rvn)) {
-        Promise.all([
-            TokenManager.resetAllTokensForAccountID(accountId),
-            toBeLoggedOut.push({ accountId, token: Authorization.replace(/Bearer eg1~/i, "") })
-        ]);
-        return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(`Profile revision mismatch, client: ${rvn}, server: ${fetchedProfile.revision}`));
     }
 
     t.print();

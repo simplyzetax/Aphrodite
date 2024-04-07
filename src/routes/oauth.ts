@@ -11,6 +11,7 @@ import { and, eq } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import TokenManager from "../utils/tokens";
 import { addHoursJWT, getACIDFromJWT, getAuthUser, getTokenFromContext } from "../utils/auth";
+import { setSignedCookie } from "hono/cookie";
 
 //I'll make it secure later
 app.post("/account/api/oauth/token", async (c) => {
@@ -121,6 +122,13 @@ app.post("/account/api/oauth/token", async (c) => {
     tm.resetAllTokensForUser();
     const accessToken = await tm.newAccessToken(clientId, body.grant_type);
     const refreshToken = await tm.newRefreshToken(clientId);
+
+    await setSignedCookie(c, "cs_access_token", `eg1~${accessToken}`, config.UPLINK_KEY, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+        expires: new Date(Date.now() + 20000)
+    });
 
     return c.json({
         access_token: `eg1~${accessToken}`,

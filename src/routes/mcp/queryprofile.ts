@@ -34,6 +34,9 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/QueryProfile', async (
         bumpRvnNumber.execute({ accountId, type: "athena" }),
     ])
 
+    const { favorite_itemwrap, ...remainingAttributes } = fullProfile.profile.stats.attributes;
+    fullProfile.profile.stats.attributes = { favorite_itemwraps: favorite_itemwrap, ...remainingAttributes };
+
     return c.json({
         profileRevision: fullProfile.profile.rvn + 1,
         profileId: fullProfile.profile.profileId,
