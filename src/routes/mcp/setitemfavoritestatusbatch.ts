@@ -31,6 +31,7 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteS
     const ua = UAParser.parse(c.req.header("User-Agent"));
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
+    //TODO, request items in for loop, still better than fetching full profile
     const ph = new ProfileHelper(requestedProfileId, ua.build);
     const fullProfile = await ph.getProfile(accountId);
     if (!fullProfile) return c.sendError(Aphrodite.mcp.templateNotFound);
@@ -38,21 +39,17 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/SetItemFavoriteS
     const profileChanges = [];
     const itemFavoritePromises = [];
     for (const i in body.itemIds) {
-        const item = fullProfile.profile.items[body.itemIds[i]];
+        const [item] = await db.select().from(items).where(eq(items.id, body.itemIds[i]));
         if (!item) continue;
 
-        if ('favorite' in item.attributes) {
-            item.attributes.favorite = true;
+        profileChanges.push({
+            changeType: "itemAttrChanged",
+            itemId: body.itemIds[i],
+            attributeName: "favorite",
+            attributeValue: body.itemFavStatus[i]
+        });
 
-            profileChanges.push({
-                changeType: "itemAttrChanged",
-                itemId: body.itemIds[i],
-                attributeName: "favorite",
-                attributeValue: body.itemFavStatus[i]
-            });
-
-            itemFavoritePromises.push(preparedMarkItemFavorite.execute({ itemId: body.itemIds[i] }));
-        }
+        itemFavoritePromises.push(preparedMarkItemFavorite.execute({ itemId: body.itemIds[i] }));
     }
 
     Promise.all([

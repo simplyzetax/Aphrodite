@@ -6,6 +6,8 @@ import Logger from "./utils/logging";
 import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
 
+import "./xmpp/server"
+
 import DB from "./database/database";
 
 const app = new Hono({

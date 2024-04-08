@@ -20,7 +20,8 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
     }
 
     const files = await db.select().from(hotfixes);
-    const hotfixList = files.map(file => {
+    const uniqueFiles = [...new Set(files.map(file => file.filename))];
+    const hotfixList = uniqueFiles.map(filename => {
         const date = new Date().toISOString();
 
         const sha256 = new Bun.SHA256();
@@ -33,8 +34,8 @@ app.get("/fortnite/api/cloudstorage/system", async (c) => {
         const sha1Hex = sha1.digest("hex");
 
         return {
-            uniqueFilename: file.filename,
-            filename: file.filename,
+            uniqueFilename: filename,
+            filename: filename,
             hash: sha1Hex,
             hash256: sha256Hex,
             length: Number((Math.random() * 1000).toFixed(0)),
