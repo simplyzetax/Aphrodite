@@ -1,0 +1,41 @@
+{
+    "Panels": [
+      {
+        "PanelName": "ByEpicWoven",
+        "Pages": [
+          {
+            "results": [
+              {
+                "linkData": {
+                  "namespace": "fn",
+                  "mnemonic": "playlist_defaultsolo",
+                  "linkType": "BR:Playlist",
+                  "active": true,
+                  "disabled": false,
+                  "version": 95,
+                  "moderationStatus": "Unmoderated",
+                  "accountId": "epic",
+                  "creatorName": "Epic",
+                  "descriptionTags": [],
+                  "metadata": {
+                    "image_url": "https://static.wikia.nocookie.net/fortnite/images/4/40/Solo_%28C3S2%29_-_Gamemode_-_Fortnite.jpg/revision/latest/scale-to-width-down/1000?cb=20220320143532",
+                    "matchmaking": {
+                      "override_playlist": "playlist_defaultsolo"
+                    }
+                  }
+                },
+                "lastVisited": null,
+                "linkCode": "playlist_defaultsolo",
+                "isFavorite": false
+              }
+            ],
+            "hasMore": false
+          }
+        ]
+      }
+    ],
+    "TestCohorts": [
+      "Epic"
+    ],
+    "ModeSets": {}
+  }
