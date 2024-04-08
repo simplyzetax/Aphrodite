@@ -10,8 +10,7 @@ import { tokens } from "../database/models/tokens";
 import { and, eq } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import TokenManager from "../utils/tokens";
-import { addHoursJWT, getACIDFromJWT, getAuthUser, getTokenFromContext } from "../utils/auth";
-import { setSignedCookie } from "hono/cookie";
+import { addHoursJWT, getAuthUser, getTokenFromContext } from "../utils/auth";
 
 //I'll make it secure later
 app.post("/account/api/oauth/token", async (c) => {

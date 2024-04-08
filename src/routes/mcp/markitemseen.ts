@@ -73,12 +73,16 @@ app.post("/fortnite/api/game/v2/profile/:unsafeAccountId/client/MarkItemSeen", a
         ...itemSeenPromises
     ])
 
+    const clientCommandRevision = JSON.parse(c.req.header("X-EpicGames-ProfileRevisions") || '[]')
+        .find((x: any) => x.profileId === "athena")?.clientCommandRevision;
+    if (!clientCommandRevision) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing X-EpicGames-ProfileRevisions header"));
+
     return c.json({
         profileRevision: fetchedProfile.revision + 1,
         profileId: requestedProfileId,
         profileChangesBaseRevision: fetchedProfile.revision,
         profileChanges: profileChanges,
-        profileCommandRevision: fetchedProfile.revision + 1,
+        profileCommandRevision: clientCommandRevision,
         serverTime: new Date().toISOString(),
         responseVersion: 1
     });

@@ -70,6 +70,21 @@ class Contentpages {
                 });
             }
 
+            if (Array.isArray(contentpages.emergencynoticev2.emergencynotices.emergencynotices)) {
+                contentpages.emergencynoticev2.emergencynotices.emergencynotices = [];
+
+                const splashLines = splash.split("\n");
+                const randomSplash = splashLines[Math.floor(Math.random() * splashLines.length)];
+
+                contentpages.emergencynoticev2.emergencynotices.emergencynotices.push({
+                    gamemodes: [],
+                    _type: "CommonUI Simple Message Base",
+                    title: `Aphrodite - ${mem.build}.${config.UPLINK_KEY.substring(0, 6)}`,
+                    body: randomSplash,
+                    spotlight: true
+                });
+            }
+
             return contentpages;
 
         } catch (error: any) {

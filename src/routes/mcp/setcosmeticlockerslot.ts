@@ -26,7 +26,6 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot'
     const accountId = getACIDFromJWT(c);
     const requestedProfileId = c.req.query("profileId");
     const ua = UAParser.parse(c.req.header("User-Agent"));
-
     const unsafeBody = await Encoding.getJSONBody(c);
 
     if (!Authorization) return c.sendError(Aphrodite.authentication.invalidHeader);
@@ -77,13 +76,9 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/SetCosmeticLockerSlot'
         attributeValue: locker.attributes.locker_slots_data,
     });
 
-    const XEpicProfileRevisions = c.req.header("X-EpicGames-ProfileRevisions");
-    if (!XEpicProfileRevisions) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing X-EpicGames-ProfileRevisions header"));
-
-    const parsed = JSON.parse(XEpicProfileRevisions);
-
-    const athenaValue = parsed.find((x: any) => x.profileId === "athena");
-    const clientCommandRevision = athenaValue?.clientCommandRevision;
+    const clientCommandRevision = JSON.parse(c.req.header("X-EpicGames-ProfileRevisions") || '[]')
+        .find((x: any) => x.profileId === "athena")?.clientCommandRevision;
+    if (!clientCommandRevision) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing X-EpicGames-ProfileRevisions header"));
 
     const databaseToCategoryMap: { [x: string]: string } = {
         Character: "characterId",

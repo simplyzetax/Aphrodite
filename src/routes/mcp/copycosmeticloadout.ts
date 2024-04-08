@@ -7,17 +7,21 @@ import { and, eq, sql } from "drizzle-orm";
 import Encoding from "../../utils/encoding";
 import { profiles } from "../../database/models/profiles";
 import { items } from "../../database/models/items";
-import { loadouts } from "../../database/models/loadouts";
-import { buildOneLoadout } from "../../utils/builders/loadouts";
+import { loadouts, type NewLoadout } from "../../database/models/loadouts";
+import { attributes } from "../../database/models/attributes";
 
 export const preparedJoinedQueryWithItems = db
     .select()
     .from(profiles)
     .where(and(eq(profiles.type, sql.placeholder('type')), eq(profiles.accountId, sql.placeholder('accountId'))))
-    .leftJoin(items, and(eq(profiles.id, items.profileId), eq(items.templateId, sql.placeholder('itemToSlot'))))
-    .leftJoin(loadouts, and(eq(profiles.id, loadouts.profileId), eq(loadouts.lockerName, sql.placeholder('lockerItem'))))
-    .prepare("preparedJoinedQueryOther");
+    .leftJoin(attributes, and(eq(profiles.id, attributes.profileId), eq(attributes.key, "last_applied_loadout")))
+    .prepare("preparedJoinedQueryCopyCosmeticLoadout");
 
+const lastAppliedLoadoutAttributeQuery = db.select().from(attributes).where(and(eq(attributes.profileId, sql.placeholder('profileId')), eq(attributes.key, "last_applied_loadout_attribute_query"))).prepare("lastAppliedLoadoutQuery")
+
+const lastAppliedLoadoutQuery = db.select().from(loadouts).where(eq(loadouts.profileId, sql.placeholder('profileId'))).prepare("lastAppliedLoadoutQuery");
+
+//THIS DOESNT WORK YET, I approached it wrong
 app.post('/fortnite/api/game/v2/profile/:accountId/client/CopyCosmeticLoadout', async (c) => {
 
     const Authorization = c.req.header("Authorization");
@@ -33,45 +37,42 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/CopyCosmeticLoadout', 
     if (!ua) return c.sendError(Aphrodite.internal.invalidUserAgent);
 
     const bodySchema = z.object({
-        category: z.string(),
-        itemToSlot: z.string().or(z.literal("")),
-        lockerItem: z.string(),
-        optLockerUseCountOverride: z.number(),
-        slotIndex: z.number(),
-        variantUpdates: z.array(z.object({
-            channel: z.string(),
-            active: z.string(),
-        })).optional(),
+        sourceIndex: z.number(),
+        targetIndex: z.number(),
+        optNewNameForTarget: z.string(),
     });
 
     const parsedBody = bodySchema.safeParse(unsafeBody);
     if (!parsedBody.success) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage(parsedBody.error.errors.map((e) => e.message).join(", ")));
 
-    const { category, itemToSlot, slotIndex, lockerItem } = parsedBody.data;
+    const { sourceIndex, targetIndex, } = parsedBody.data;
 
     const profileChanges: object[] = [];
 
-    const queryResult = await preparedJoinedQueryWithItems.execute({ type: requestedProfileId, accountId, itemToSlot: itemToSlot, lockerItem: lockerItem });
+    const queryResult = await preparedJoinedQueryWithItems.execute({ type: requestedProfileId, accountId });
 
     const fetchedProfile = queryResult.map(({ profiles }) => profiles)[0];
-    const fetchedItems = queryResult.map(({ items }) => items);
-    const fetchedLoadouts = queryResult.map(({ loadouts }) => loadouts);
+    const lastAppliedLoadoutAttribute = queryResult.map(({ attributes }) => attributes)[0];
 
-    const firstItem = fetchedItems[0];
-    const firstLoadout = fetchedLoadouts[0];
+    const [lastAppliedLoadoutQueryResult] = await lastAppliedLoadoutAttributeQuery.execute({ profileId: fetchedProfile.id });
+    if (!lastAppliedLoadoutQueryResult) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("No last applied loadout attribute query found"));
+    const lastAppliedLoadoutName = lastAppliedLoadoutQueryResult.valueJSON;
 
-    if (!firstItem && firstItem !== null && !itemToSlot.includes("_random") && itemToSlot !== "") return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("You do not own the item you are trying to equip"));
-    if (!firstLoadout) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Invalid locker item"));
+    const [lastAppliedLoadoutResult] = await lastAppliedLoadoutQuery.execute({ profileId: fetchedProfile.id });
+    if (!lastAppliedLoadoutResult) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("No last applied loadout found"));
 
-    const locker = buildOneLoadout(firstLoadout);
+    const mutableLoadout = { ...lastAppliedLoadoutResult };
+    mutableLoadout.lockerName = `Copy of ${lastAppliedLoadoutResult.lockerName}-${targetIndex}`;
 
-    const XEpicProfileRevisions = c.req.header("X-EpicGames-ProfileRevisions");
-    if (!XEpicProfileRevisions) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing X-EpicGames-ProfileRevisions header"));
+    const newLoadout: NewLoadout = { ...mutableLoadout }
 
-    const parsed = JSON.parse(XEpicProfileRevisions);
+    Promise.all([
+        db.insert(loadouts).values(newLoadout).execute(),
+    ]);
 
-    const athenaValue = parsed.find((x: any) => x.profileId === "athena");
-    const clientCommandRevision = athenaValue?.clientCommandRevision;
+    const clientCommandRevision = JSON.parse(c.req.header("X-EpicGames-ProfileRevisions") || '[]')
+        .find((x: any) => x.profileId === "athena")?.clientCommandRevision;
+    if (!clientCommandRevision) return c.sendError(Aphrodite.mcp.invalidPayload.withMessage("Missing X-EpicGames-ProfileRevisions header"));
 
     return c.json({
         profileRevision: fetchedProfile.revision + 1,
