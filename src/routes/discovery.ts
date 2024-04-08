@@ -1,5 +1,7 @@
 import app from "..";
-const discovery = require("../../static/discovery_api.json");
+import path from "node:path"
+
+const discovery = await Bun.file(path.join(__dirname, "..", "..", "static", "discovery_api.json"))
 
 app.post("/api/v1/discovery/surface/*", async (c) => {
     return c.json(discovery);
