@@ -1,5 +1,5 @@
 import app from "..";
-const discovery = require("../../static/discovery_assets.json");
+const discovery = require("../../static/discovery_api.json");
 
 app.post("/api/v1/discovery/surface/*", async (c) => {
     return c.json(discovery);
