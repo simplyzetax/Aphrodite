@@ -20,7 +20,7 @@ export const client = new Client({
     presence: {
         activities: [
             {
-                name: "Fortnite with Nexus",
+                name: "Fortnite with Aphrodite",
                 type: ActivityType.Playing,
             },
         ],
