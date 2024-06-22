@@ -5,6 +5,7 @@ import { loadRoutes } from "./utils/routing";
 import Logger from "./utils/logging";
 import { Aphrodite } from "./utils/error";
 import { Config } from "./utils/config";
+import * as bot from "./bot/index"
 
 import "./xmpp/server"
 
@@ -28,6 +29,9 @@ await dbInstance.connect();
 export const db = dbInstance.client;
 
 await loadRoutes('../../src/routes/');
+
+// Discord bot login, Make sure you have the correct intents!
+bot.login()
 
 app.notFound((c) => c.sendError(Aphrodite.basic.notFound));
 

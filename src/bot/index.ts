@@ -20,7 +20,7 @@ export const client = new Client({
     presence: {
         activities: [
             {
-                name: "Fortnite with Aphrodite",
+                name: "Aphrodite",
                 type: ActivityType.Playing,
             },
         ],
@@ -61,7 +61,6 @@ async function registerEvents(client: Client<any>) {
         }
     }
 }
-
 registerEvents(client)
     .then(() => {
         Logger.startup("All events registered!");
