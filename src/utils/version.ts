@@ -13,6 +13,7 @@ class UAParser {
             lobby: 'LobbySeason0'
         };
 
+        
         const userAgent = ua;
         if (!userAgent) {
             return undefined;

@@ -10,6 +10,7 @@ import * as bot from "./bot/index"
 import "./xmpp/server"
 
 import DB from "./database/database";
+import { HTTPException } from "hono/http-exception";
 
 const app = new Hono({
     strict: false,
@@ -31,8 +32,27 @@ export const db = dbInstance.client;
 await loadRoutes('../../src/routes/');
 
 // Discord bot login, Make sure you have the correct intents!
-bot.login()
+await bot.login()
 
 app.notFound((c) => c.sendError(Aphrodite.basic.notFound));
+
+app.onError((err, c) => {
+    if (typeof err !== 'object') {
+        return c.json({
+            error: err,
+            status: 500
+        })
+    } else {
+        if (err instanceof HTTPException) {
+            console.log("HTTPException")
+            return err.getResponse()
+        }
+    }
+
+    return c.json({
+        error: err.message,
+        status: 500
+    })
+});
 
 Logger.startup("Aphrodite listening on port 3000 😏");

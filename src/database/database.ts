@@ -30,7 +30,7 @@ class DB {
             connectionString: database_url,
         });
 
-        this.client = drizzle(this.connection);
+        this.client = drizzle(this.connection, { logger: true });
         this.id = DB.instanceCount++;
     }
 

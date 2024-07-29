@@ -38,15 +38,19 @@ export class ProfileHelper {
     public async getProfile(accountId: string): Promise<Profile | undefined> {
         try {
             // Fetch profile from database (single row)
-            const t = new Timing("t");
+            const t = new Timing("Profile fetch");
             const result = await preparedJoinedQueryOther.execute({ type: this.type, accountId });
             t.print();
 
-            // Access the fetchedProfile and fetchedAttributes from the result
-            const fetchedProfile = result.map(({ profiles }) => profiles)[0];
-            const fetchedAttributes = result.map(({ attributes }) => attributes);
-            const fetchedItems = result.map(({ items }) => items);
-            const fetchedLoadouts = result.map(({ loadouts }) => loadouts);
+            // Extract the fetched profile, attributes, items, and loadouts from the result
+            const fetchedProfile = result[0]?.profiles;
+            const fetchedAttributes = result.map(({ attributes }) => attributes).filter(attr => attr !== null);
+            const fetchedItems = result.map(({ items }) => items).filter(item => item !== null);
+            const fetchedLoadouts = result.map(({ loadouts }) => loadouts).filter(loadout => loadout !== null);
+
+            if (!fetchedProfile) {
+                return undefined;
+            }
 
             // Initialize loadoutsData and bLoadouts as empty, they will be populated if profile type is 'athena'
             let loadoutsData = [];
@@ -54,23 +58,21 @@ export class ProfileHelper {
 
             // If profile type is 'athena', fetch and build loadouts
             if (fetchedProfile.type === 'athena') {
-                loadoutsData = fetchedLoadouts.filter(loadout => loadout !== null);
+                loadoutsData = fetchedLoadouts;
                 bLoadouts = buildLoadouts(loadoutsData);
             }
 
             // Convert attributes data to a key-value pair object
             const attributesObject: Record<string, any> = {};
             for (const attribute of fetchedAttributes) {
-                if (attribute == null || attribute.key == null || attribute.valueJSON == null) {
-                    continue;
+                if (attribute.key && attribute.valueJSON) {
+                    attributesObject[attribute.key] = attribute.valueJSON;
                 }
-                attributesObject[attribute.key] = attribute.valueJSON;
             }
 
             // Build items
             const itemBuilder = new ItemBuilder(fetchedProfile.id);
-            const nonNullItems = fetchedItems.filter(item => item !== null);
-            const bItems = await itemBuilder.buildItems(nonNullItems);
+            const bItems = await itemBuilder.buildItems(fetchedItems);
 
             // Construct profile object
             const profileObject: ProfileSchemaDB = {
@@ -89,8 +91,8 @@ export class ProfileHelper {
                 items: {
                     ...bItems,
                     ...bLoadouts,
-                } as any // Temporary type casting, to be fixed later
-            }
+                } as any // Temporary type casting, to be fixed later //TODO
+            };
 
             // Create and return a new Profile instance
             const profileInstance = new Profile(profileObject);

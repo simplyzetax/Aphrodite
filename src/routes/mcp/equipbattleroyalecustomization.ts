@@ -85,13 +85,17 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/EquipBattleRoyaleCusto
         }];
 
         Promise.all([
-            bumpRvnNumber.execute({ accountId, type: "athena" }),
-            db.delete(attributes).where(and(eq(attributes.profileId, profile.id), eq(attributes.key, `favorite_${slotName.toLowerCase()}`))),
-            db.insert(attributes).values({
-                profileId: profile.id,
-                key: `favorite_${slotName.toLowerCase()}`,
-                type: requestedProfileId,
-                valueJSON: valueJSON
+            db.transaction(async (db) => {
+                await Promise.all([
+                    bumpRvnNumber.execute({ accountId, type: "athena" }),
+                    db.delete(attributes).where(and(eq(attributes.profileId, profile.id), eq(attributes.key, `favorite_${slotName.toLowerCase()}`))),
+                    db.insert(attributes).values({
+                        profileId: profile.id,
+                        key: `favorite_${slotName.toLowerCase()}`,
+                        type: requestedProfileId,
+                        valueJSON: valueJSON
+                    })
+                ]);
             })
         ]);
 

@@ -19,7 +19,6 @@ class XMPPClient {
     private ws: ServerWebSocket<WebSocketData>;
     private authenticated = false;
     private user: User | null = null;
-    private secWebSocketKey: string;
     private uuid: string;
 
     private resource: string | null = null;
@@ -27,7 +26,6 @@ class XMPPClient {
 
     constructor(ws: ServerWebSocket<WebSocketData>) {
         this.ws = ws;
-        this.secWebSocketKey = ws.data.SecWebSocketKey;
         this.uuid = UUID.g();
     }
 
@@ -157,7 +155,6 @@ class XMPPClient {
         }
     }
 
-    // biome-ignore lint/suspicious/useAwait: <explanation>
     public async handlePresence(msg: XMLParser.Document) {
         if (!this.jid) return this.ws.close(1008, "Invalid JID");
 
@@ -170,7 +167,7 @@ class XMPPClient {
 
                 if (baseAddress.endsWith(`@muc.${xmppDomain}`) && baseAddress.toLowerCase().startsWith("party-")) {
                     const room = baseAddress.split("@")[0];
-                    //TODO: Do this
+                    //TODO: Do this (I don't want to)
                     return;
                 }
             }

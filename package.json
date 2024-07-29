@@ -7,7 +7,7 @@
     "@biomejs/biome": "1.6.4",
     "@types/bun": "^1.0.12",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/pg": "^8.11.4",
+    "@types/pg": "^8.11.6",
     "@types/qs": "^6.9.14",
     "@types/uuid": "^9.0.8",
     "@types/xml-parser": "^1.2.33",
