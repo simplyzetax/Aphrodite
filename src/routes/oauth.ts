@@ -11,6 +11,7 @@ import { and, eq } from "drizzle-orm";
 import { users, type User } from "../database/models/users";
 import TokenManager from "../utils/tokens";
 import { addHoursJWT, getAuthUser, getTokenFromContext } from "../utils/auth";
+import * as argon2 from "argon2";
 
 //I'll make it secure later
 app.post("/account/api/oauth/token", async (c) => {
@@ -77,8 +78,8 @@ app.post("/account/api/oauth/token", async (c) => {
             [user] = await db.select().from(users).where(eq(users.email, username));
             if (!user) return c.sendError(Aphrodite.authentication.oauth.invalidAccountCredentials);
 
-            //I aint typing allat
-            if (password !== user.password && username !== "hazy-flower-03@icloud.com") return c.sendError(Aphrodite.authentication.oauth.invalidAccountCredentials.withMessage("Invalid password"));
+            const validPassword = await argon2.verify(user.password, password);
+            if (!validPassword) return c.sendError(Aphrodite.authentication.oauth.invalidAccountCredentials);
 
             break;
         }
