@@ -3,7 +3,9 @@
 
 [![pnpm](https://img.shields.io/badge/maintained%20with-bun-ac98ff.svg?style=for-the-badge&logo=bun)](https://bun.sh/) 
 ![Size](https://img.shields.io/github/repo-size/simplyzetax/Aphrodite?label=Size&style=for-the-badge)
-![Visits](https://komarev.com/ghpvc/?username=simplyzetax&style=for-the-badge)
+
+> [!WARNING]
+> This project is still in development and is not ready for production use. Please do not use this in production.
 
 Aphrodite is a custom backend aimed to work at **almost** all Fortnite versions. It is engineered to provide superior stability, incorporate production-grade features, and deliver exceptional performance. 🔥
 
