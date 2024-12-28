@@ -5,6 +5,7 @@ import { users } from "../../database/models/users.js";
 import { eq } from "drizzle-orm";
 import UUID from "../../utils/uuid.js";
 import { profiles } from "../../database/models/profiles.js";
+import * as argon2 from "argon2";
 
 async function handleInteractionCreate(interaction: ChatInputCommandInteraction | ModalSubmitInteraction) {
 
@@ -17,6 +18,7 @@ async function handleInteractionCreate(interaction: ChatInputCommandInteraction 
 
                 if (!displayName || !password || !email) return interaction.followUp({ content: "You must fill out all the fields", });
 
+                const hashedPassword = await argon2.hash(password);
                 const user = interaction.user;
                 const [dbUser] = await db.select().from(users).where(eq(users.discordId, user.id));
                 if (dbUser) return interaction.followUp({ content: "You are already registered", });
@@ -26,7 +28,7 @@ async function handleInteractionCreate(interaction: ChatInputCommandInteraction 
                 await db.insert(users).values({
                     discordId: user.id,
                     displayName: displayName,
-                    password: password,
+                    password: hashedPassword,
                     accountId: accountId,
                     email: email,
                 });
