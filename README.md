@@ -11,6 +11,8 @@ Aphrodite is a custom backend aimed to work at **almost** all Fortnite versions.
 
 It is currently not ready for production as most things aren't implemented yet. However, it is being worked on and will be ready soon.
 
+Database wise its made for Postgres so NO Your localhost MongoDB wont work 💀
+
 Join our discord at https://discord.gg/7njfwrAqTd
 
 If you skid this I will come after you
@@ -19,6 +21,7 @@ If you skid this I will come after you
 `git clone https://github.com/simplyzetax/Aphrodite`  
 `bun install`  
 `bun run src/index.ts`
+
 
 ## Features Todo
 
